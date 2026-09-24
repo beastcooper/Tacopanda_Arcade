@@ -11,7 +11,7 @@ async function launch() {
 
     const html = await response.text();
 
-    const win = window.open("about:blank#Tacopanda", "_blank");
+    const win = window.open("about:blank#Tacopanda");
 
     win.document.open();
     win.document.write(html);
