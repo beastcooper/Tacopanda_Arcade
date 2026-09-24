@@ -1262,7 +1262,7 @@
     }
     async function launchGame(url) {
       const res = await fetch(url); const html = await res.text();
-      const win = window.open("about:blank"); win.document.write(html); win.document.close();
+      const win = window.open("about:blank#Tacopanda"); win.document.write(html); win.document.close();
     }
     function filterCurrentGames() {
       const q = document.getElementById("search").value.toLowerCase();
