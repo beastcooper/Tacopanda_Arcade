@@ -1,0 +1,3051 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tacopanda</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Added PocketBase SDK here -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pocketbase/0.21.3/pocketbase.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;700&display=swap" rel="stylesheet">
+  <style id="theme-style">
+    :root {
+      --bg-dark: #0f172a;
+      --panel-dark: #1e293b;
+      --panel-border: #334155;
+      --taco-orange: #ea580c;
+      --taco-orange-hover: #c2410c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --input-bg: #0f172a;
+
+      /* Launcher Arcade Engine Colors */
+      --bg-color-1: #0b132b;
+      --bg-color-2: #060a17;
+      --text-color: #f4f5f6;
+      --accent-color: #00b4d8;
+      --glow-color: #90e0ef;
+      --salsa-red: #ff4d6d;
+      --accent-rgb: 0, 180, 216;
+      --salsa-rgb: 255, 77, 109;
+      --glow-alpha: 1;
+      --ui-radius: 12px;
+      --glass-bg: rgba(15, 23, 42, 0.55);
+      --glass-border: rgba(var(--accent-rgb), calc(0.25 * var(--glow-alpha)));
+      --glass-shadow: 0 8px 32px rgba(var(--accent-rgb), calc(0.15 * var(--glow-alpha))), 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    /* Theme customization: corner roundness slider overrides these common
+       Tailwind radius utilities everywhere they're used (rounded-full is
+       left alone so avatars/circular buttons stay circular). */
+    .rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl {
+      border-radius: var(--ui-radius) !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+    }
+    html, body, #app { height: 100%; width: 100%; margin: 0; padding: 0; }
+
+    .site-panel {
+      background-color: var(--panel-dark);
+      border: 1px solid var(--panel-border);
+    }
+
+    .btn-primary {
+      background-color: var(--taco-orange);
+      color: #ffffff;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover { background-color: var(--taco-orange-hover); }
+
+    .nav-tab {
+      color: var(--text-muted);
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border-bottom: 2px solid transparent;
+    }
+    .nav-tab:hover {
+      color: var(--text-main);
+    }
+    .nav-tab.active {
+      color: #f97316;
+      border-color: #f97316;
+    }
+
+    .form-input {
+      background-color: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+    .form-input:focus {
+      border-color: #f97316;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+    }
+
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    .flat-panel {
+      background-color: var(--panel-dark);
+      border: 1px solid var(--panel-border);
+      position: relative;
+    }
+    .flat-button {
+      background-color: var(--taco-orange);
+      border: 1px solid var(--taco-orange-hover);
+      color: #ffffff;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .flat-button:hover { background-color: var(--taco-orange-hover); }
+    .flat-button:active { background-color: #9a3412; }
+    .brand-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+    }
+    .custom-input {
+      background-color: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      transition: border-color 0.2s ease;
+    }
+    .custom-input:focus { border-color: var(--taco-orange); outline: none; }
+    .custom-input::placeholder { color: var(--text-muted); }
+    .chat-scroll { scrollbar-width: thin; scrollbar-color: var(--taco-orange) var(--bg-dark); }
+    .chat-scroll::-webkit-scrollbar { width: 8px; }
+    .chat-scroll::-webkit-scrollbar-track { background: var(--bg-dark); }
+    .chat-scroll::-webkit-scrollbar-thumb { background: var(--taco-orange); border-radius: 4px; }
+    .loading-overlay { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.9); display: flex; align-items: center; justify-content: center; z-index: 50; }
+
+    .font-mono { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .social-link:hover { border-color: var(--taco-orange); color: var(--taco-orange) !important; }
+
+    .text-orange-400, .text-orange-500 { color: var(--taco-orange) !important; }
+    .bg-orange-500 { background-color: var(--taco-orange) !important; }
+    .border-orange-400 { border-color: var(--taco-orange) !important; }
+
+    /* Launcher Specific Styles */
+    .nebula-bg {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 20%, rgba(var(--accent-rgb), calc(0.25 * var(--glow-alpha))) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 75%, rgba(144, 224, 239, 0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, var(--bg-color-1) 0%, var(--bg-color-2) 70%);
+    }
+    .stars {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 40%, rgba(144,224,239,0.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 40% 10%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 60%, rgba(var(--accent-rgb), calc(0.5 * var(--glow-alpha))) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 25%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 80% 80%, rgba(144,224,239,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 45%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 75%, rgba(var(--salsa-rgb), calc(0.4 * var(--glow-alpha))) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 90%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 5%  55%, rgba(255,255,255,0.7) 0%, transparent 100%);
+    }
+    #splash-screen {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 1000; opacity: 1; transition: opacity 0.8s ease-out 3s;
+      background: var(--bg-color-2);
+    }
+    #splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-wrapper {
+      width: 100%; height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; overflow: hidden; padding: 0; gap: 0;
+    }
+    .grid-bg {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(var(--accent-rgb), calc(0.06 * var(--glow-alpha))) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--accent-rgb), calc(0.06 * var(--glow-alpha))) 1px, transparent 1px);
+      background-size: 60px 60px; animation: gridPulse 4s ease-in-out infinite;
+    }
+    @keyframes gridPulse { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+    .taco-symbol {
+      position: absolute; font-family: 'Exo 2', sans-serif;
+      opacity: 0; animation: floatSymbol 8s ease-in-out infinite; pointer-events: none; font-size: 1.8rem;
+    }
+    @keyframes floatSymbol {
+      0%{opacity:0;transform:translateY(40px) rotate(0deg)} 20%{opacity:0.3} 80%{opacity:0.3}
+      100%{opacity:0;transform:translateY(-200px) rotate(360deg)}
+    }
+    .title-line { overflow: hidden; position: relative; }
+    .title-main {
+      font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(1.8rem,5vw,3.5rem);
+      color: var(--text-color); letter-spacing: 0.08em; text-transform: uppercase;
+      opacity: 0; transform: translateY(100%);
+      animation: slideReveal 1s cubic-bezier(0.16,1,0.3,1) 0.5s forwards;
+      text-shadow: 0 0 20px var(--accent-color), 0 0 60px var(--glow-color); margin: 0;
+    }
+    .title-sub {
+      font-family: 'Orbitron', sans-serif; font-weight: 400; font-size: clamp(1.2rem,3.5vw,2.5rem);
+      color: var(--accent-color); letter-spacing: 0.35em; text-transform: uppercase;
+      opacity: 0; transform: translateY(100%);
+      animation: slideReveal 1s cubic-bezier(0.16,1,0.3,1) 1s forwards;
+      text-shadow: 0 0 30px var(--accent-color), 0 0 80px var(--salsa-red); margin: 0;
+    }
+    @keyframes slideReveal { 0%{opacity:0;transform:translateY(100%)} 100%{opacity:1;transform:translateY(0)} }
+    .accent-line {
+      width: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-color), var(--salsa-red), var(--glow-color), transparent);
+      animation: lineExpand 1.2s cubic-bezier(0.16,1,0.3,1) 1.5s forwards; margin: 0.2rem 0 0.4rem;
+    }
+    @keyframes lineExpand { 0%{width:0;opacity:0} 100%{width:min(80%,500px);opacity:1} }
+    .logo-container {
+      position: relative; opacity: 0; transform: scale(0.8) translateY(30px);
+      animation: imageReveal 1.2s cubic-bezier(0.16,1,0.3,1) 2s forwards;
+      width: 260px; height: 260px; display: flex; align-items: center; justify-content: center;
+      margin-top: 20px; background: transparent;
+    }
+    .logo-container img {
+      width: 220px; height: 220px; object-fit: contain; background: transparent;
+      filter: drop-shadow(0 0 25px var(--accent-color)) drop-shadow(0 0 50px var(--glow-color));
+    }
+    @keyframes imageReveal { 0%{opacity:0;transform:scale(0.8) translateY(30px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
+    .particle { position: absolute; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; opacity: 0; }
+
+    #games-screen {
+      position: relative; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 20px; opacity: 0; transition: opacity 0.8s ease-in 3s; overflow-y: auto; z-index: 10;
+    }
+    #games-screen.visible { opacity: 1; }
+    #games-screen > * { position: relative; z-index: 2; }
+
+    .launcher-header {
+      position: relative; text-align: center; margin-bottom: 10px; width: 100%;
+      background: var(--glass-bg); backdrop-filter: blur(18px) saturate(1.4);
+      -webkit-backdrop-filter: blur(18px) saturate(1.4);
+      border: 1px solid var(--glass-border); border-radius: 20px; padding: 18px 24px 14px;
+      box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.07);
+    }
+    .launcher-header h1 {
+      margin: 0; font-size: 32px; font-weight: 700; letter-spacing: 3px;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--text-color);
+      text-shadow: 0 0 18px rgba(var(--accent-rgb), calc(0.45 * var(--glow-alpha)));
+    }
+
+    #launcher-nav-tabs { margin-top: 14px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; width: 100%; }
+    .launcher-tab {
+      padding: 10px 22px; border: 1px solid var(--glass-border); background: rgba(10,25,47,0.5);
+      backdrop-filter: blur(12px); color: #d0f4de; font-family: 'Orbitron', sans-serif; font-size: 13px;
+      font-weight: 600; cursor: pointer; border-radius: 50px; transition: all 0.3s ease; letter-spacing: 1px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .launcher-tab:hover { border-color: var(--accent-color); background: rgba(15,35,65,0.6); color: var(--accent-color); }
+    .launcher-tab.active {
+      border-color: var(--accent-color); background: linear-gradient(135deg,rgba(var(--accent-rgb), calc(0.3 * var(--glow-alpha))),rgba(var(--salsa-rgb), calc(0.25 * var(--glow-alpha))));
+      color: var(--glow-color); box-shadow: 0 0 30px var(--accent-color), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    #count {
+      position: absolute; top: 18px; left: 24px; font-size: 12px; color: var(--glow-color);
+      background: var(--glass-bg); backdrop-filter: blur(14px); border: 1px solid var(--glass-border);
+      padding: 6px 14px; border-radius: 50px; z-index: 10; box-shadow: var(--glass-shadow); letter-spacing: 1px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .logo-badge {
+      position: absolute; top: 12px; right: 24px; z-index: 10;
+      width: 45px; height: 45px; border-radius: 50%;
+      background: var(--glass-bg); backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .logo-badge img {
+      width: 32px; height: 32px; object-fit: contain;
+      filter: drop-shadow(0 0 8px var(--accent-color));
+    }
+
+    #search {
+      margin: 14px auto; max-width: 440px; width: 100%; padding: 14px 20px; border-radius: 50px;
+      border: 1px solid var(--glass-border); background: rgba(15,23,42,0.6); backdrop-filter: blur(16px);
+      color: var(--text-color); font-family: 'Orbitron', sans-serif; font-size: 14px; outline: none;
+      box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.05); transition: all 0.3s ease; letter-spacing: 0.5px;
+    }
+    #search::placeholder { color: rgba(144,224,239,0.45); }
+    #search:focus { border-color: var(--accent-color); background: rgba(20,32,58,0.7); }
+
+    #games-wrapper { flex: 1; overflow-y: auto; width: 100%; }
+    #games {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+      justify-content: center; gap: 35px 22px; margin-top: 20px; padding: 10px 10px 30px;
+    }
+
+    .game-card {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center;
+      width: 100%;
+    }
+    .game-btn {
+      width: 160px; height: 160px; border-radius: 50%; cursor: pointer;
+      background: radial-gradient(circle at 35% 35%, rgba(30, 50, 80, 0.9), rgba(5, 10, 20, 0.95));
+      backdrop-filter: blur(10px);
+      color: var(--text-color); font-family: 'Orbitron', sans-serif;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      padding: 0; overflow: hidden; position: relative; z-index: 1;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(var(--accent-rgb), calc(0.2 * var(--glow-alpha)));
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    
+    .game-card:hover .game-btn {
+      transform: translateY(-8px) scale(1.05);
+      border-color: var(--glow-color);
+      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.7), 0 0 0 3px var(--accent-color), 0 0 24px rgba(var(--accent-rgb), calc(0.4 * var(--glow-alpha)));
+    }
+    .game-btn:active {
+      transform: translateY(-2px) scale(0.98);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+    }
+    .game-btn:focus { outline: none; }
+    .game-btn img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(0.95) contrast(1.1); pointer-events: none;
+    }
+    .game-card:hover img { filter: brightness(1.1) contrast(1.15); }
+
+    .saturn-ring {
+      position: absolute; bottom: -12px; z-index: 3;
+      width: 105%; max-width: 210px;
+      background: rgba(10, 20, 38, 0.85); backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border); border-radius: 50px;
+      padding: 8px 12px; text-align: center;
+      box-shadow: 0 0 15px rgba(var(--accent-rgb), calc(0.3 * var(--glow-alpha))), 0 8px 20px rgba(0,0,0,0.6);
+      transition: all 0.3s ease; pointer-events: none;
+    }
+    .saturn-ring::before {
+      content: ''; position: absolute; inset: -2px; border-radius: 50px;
+      background: linear-gradient(90deg, transparent, var(--accent-color), var(--glow-color), transparent);
+      z-index: -1; opacity: 0.5; transition: opacity 0.3s ease;
+    }
+    .game-card:hover .saturn-ring {
+      transform: translateY(-4px) scale(1.03);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 25px var(--accent-color), 0 10px 25px rgba(0,0,0,0.8);
+    }
+    .game-card:hover .saturn-ring::before { opacity: 1; }
+    .saturn-ring span {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-align: center;
+      color: var(--text-color); text-shadow: 0 0 8px var(--accent-color);
+      display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .star-btn {
+      position: absolute; top: 2px; right: 18px; width: 34px; height: 34px;
+      border: 1px solid rgba(144,224,239,0.5); background: rgba(10,20,35,0.95);
+      color: var(--glow-color); font-size: 16px; cursor: pointer; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      transition: all 0.25s ease-in-out; z-index: 10; padding: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+      opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+      transform: translateY(-6px) scale(0.7);
+    }
+    
+    .game-card:hover .star-btn {
+      opacity: 1 !important; visibility: visible !important; pointer-events: all !important;
+      transform: translateY(0) scale(1);
+    }
+    .star-btn.favorited {
+      background: rgba(0,0,216,0.5); border-color: var(--glow-color);
+      box-shadow: 0 0 20px var(--accent-color); color: #fff;
+    }
+    
+    .launcher-footer {
+      text-align: center; font-size: 12px; letter-spacing: 2px; color: var(--glow-color);
+      padding: 14px 30px; margin-top: 10px; width: 100%; max-width: 500px;
+      background: var(--glass-bg); backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border); border-radius: 50px; box-shadow: var(--glass-shadow);
+      font-family: 'Orbitron', sans-serif;
+    }
+    #empty-state { text-align: center; margin-top: 60px; font-size: 18px; color: rgba(144,224,239,0.5); letter-spacing: 2px; font-family: 'Orbitron', sans-serif; }
+
+    /* Soundboard — reuses the same panel/accent variables as the rest of
+       the site, so the theme picker (color, glow, roundness) reaches this
+       page too instead of it carrying its own separate palette. */
+    .sound-btn {
+      background-color: var(--panel-dark);
+      border: 1px solid var(--panel-border);
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: capitalize;
+      letter-spacing: 0.3px;
+      padding: 14px 10px;
+      height: 76px;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      word-break: break-word;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sound-btn:hover {
+      border-color: var(--taco-orange);
+      color: var(--taco-orange);
+      box-shadow: 0 0 16px rgba(var(--accent-rgb), calc(0.3 * var(--glow-alpha)));
+    }
+    .sound-btn.playing {
+      background-color: var(--taco-orange);
+      border-color: var(--taco-orange-hover);
+      color: #fff;
+      box-shadow: 0 0 22px rgba(var(--accent-rgb), calc(0.5 * var(--glow-alpha)));
+    }
+  </style>
+ </head>
+ <body class="m-0 p-0 antialiased">
+  <div id="app" class="w-full h-full flex flex-col">
+
+   <!-- Main Platform Shell -->
+   <div id="main-platform" class="h-full flex flex-col">
+    <!-- Top Bar Navigation -->
+    <header class="site-panel border-b px-6 py-3 flex items-center justify-between shrink-0 z-20">
+     <div class="flex items-center gap-8">
+      <button id="brand-home-btn" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+       <img src="https://raw.githubusercontent.com/beastcooper/Tacopanda_Arcade/master/arcade_logo.png" alt="Tacopanda Logo" class="w-7 h-7 object-contain">
+       <span class="font-extrabold text-lg text-white">tacopanda<span class="text-orange-500">.fun</span></span>
+      </button>
+      <nav class="flex gap-6">
+       <button id="nav-home-btn" class="nav-tab active py-2 text-sm flex items-center gap-2">Home</button>
+       <button id="nav-games-btn" class="nav-tab py-2 text-sm flex items-center gap-2">Games</button>
+       <button id="nav-chat-btn" class="nav-tab py-2 text-sm flex items-center gap-2">Chat</button>
+       <button id="nav-soundboard-btn" class="nav-tab py-2 text-sm flex items-center gap-2">Soundboard</button>
+      </nav>
+     </div>
+     <div class="flex items-center gap-3">
+      <div id="user-status" class="hidden items-center gap-3">
+       <span class="text-xs text-slate-400">Signed in as <span id="nav-username-display" class="font-semibold text-slate-200"></span></span>
+       <button id="nav-logout-btn" class="px-3 py-1.5 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors">Log Out</button>
+      </div>
+      <button id="nav-signin-btn" class="px-3.5 py-1.5 text-xs btn-primary rounded-lg shadow-sm">Sign In</button>
+      <div class="relative">
+       <button id="theme-btn" title="Customize theme" class="w-9 h-9 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-300">
+         <circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle>
+         <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+        </svg>
+       </button>
+       <div id="theme-panel" class="hidden absolute right-0 mt-2 w-80 site-panel rounded-xl shadow-2xl p-4 z-50 max-h-[80vh] overflow-y-auto custom-scroll">
+        <p class="text-sm font-semibold text-white mb-1">Accent color</p>
+        <p class="text-xs text-slate-400 mb-3">Applies everywhere — home, games, and chat.</p>
+        <div id="theme-swatches" class="grid grid-cols-6 gap-2 mb-3"></div>
+        <label class="flex items-center justify-between text-xs text-slate-300 mb-1">
+         <span>Custom color</span>
+         <input type="color" id="theme-custom-color" class="w-8 h-8 p-0 border-0 bg-transparent cursor-pointer">
+        </label>
+
+        <div class="border-t border-slate-700 my-4"></div>
+
+        <p class="text-sm font-semibold text-white mb-1">Background tone</p>
+        <p class="text-xs text-slate-400 mb-3">Changes the dark base color of every panel.</p>
+        <div id="theme-bg-swatches" class="grid grid-cols-5 gap-2 mb-1"></div>
+
+        <div class="border-t border-slate-700 my-4"></div>
+
+        <p class="text-sm font-semibold text-white mb-1">Corner roundness</p>
+        <input type="range" id="theme-radius-slider" min="0" max="20" step="1" class="w-full accent-orange-500">
+
+        <div class="border-t border-slate-700 my-4"></div>
+
+        <p class="text-sm font-semibold text-white mb-1">Games page glow</p>
+        <p class="text-xs text-slate-400 mb-2">Intensity of the neon glow effects on the launcher.</p>
+        <input type="range" id="theme-glow-slider" min="0" max="100" step="10" class="w-full accent-orange-500">
+
+        <button id="theme-reset-btn" class="w-full mt-4 py-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors">Reset everything to default</button>
+       </div>
+      </div>
+     </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="flex-1 overflow-hidden relative">
+
+     <!-- HOME PAGE: landing, no login required -->
+     <div id="home-page" class="h-full flex flex-col overflow-y-auto custom-scroll p-6">
+      <div class="flex-1 flex items-center justify-center">
+       <div class="w-full max-w-2xl text-center space-y-6">
+        <div class="flex items-center justify-center gap-3">
+         <img src="https://raw.githubusercontent.com/beastcooper/Tacopanda_Arcade/master/arcade_logo.png" alt="Tacopanda Logo" class="w-14 h-14 object-contain">
+         <span class="font-extrabold text-4xl text-white">tacopanda<span class="text-orange-500">.fun</span></span>
+        </div>
+        <p class="text-slate-300 text-base leading-relaxed max-w-lg mx-auto">
+         A little corner of the internet with games to play and a live chatroom to hang out in.
+         Games are open to everyone — the chatroom just needs a free account.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+         <button id="home-play-games-btn" class="px-6 py-3 btn-primary rounded-xl text-sm font-semibold shadow-sm">Play games</button>
+         <button id="home-open-chat-btn" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-xl text-sm font-semibold transition-colors">Open the chat</button>
+        </div>
+       </div>
+      </div>
+      <footer class="shrink-0 pt-6 pb-2 flex items-center justify-center gap-3">
+       <a href="https://www.youtube.com/@its_tacopanda" target="_blank" rel="noopener noreferrer" title="YouTube" class="social-link w-10 h-10 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+       </a>
+       <a href="https://www.twitch.tv/tacopanda87" target="_blank" rel="noopener noreferrer" title="Twitch" class="social-link w-10 h-10 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>
+       </a>
+       <a href="https://github.com/beastcooper" target="_blank" rel="noopener noreferrer" title="GitHub" class="social-link w-10 h-10 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+       </a>
+      </footer>
+     </div>
+
+     <!-- PAGE 1: INTEGRATED TACOPANDA GAMES LAUNCHER -->
+     <div id="games-page" class="h-full flex flex-col relative overflow-hidden hidden">
+      <div class="nebula-bg"></div>
+      <div class="stars"></div>
+
+      <!-- Splash Screen -->
+      <div id="splash-screen">
+       <div class="splash-wrapper">
+        <div class="grid-bg" aria-hidden="true"></div>
+        <div id="mathSymbols" aria-hidden="true"></div>
+        <div id="particles" aria-hidden="true"></div>
+        <div style="text-align:center;position:relative;z-index:2;margin-bottom:-10px;margin-top:80px;">
+         <div class="title-line"><h1 class="title-main">Tacopanda</h1></div>
+         <div class="title-line"><p class="title-sub">Arcade</p></div>
+        </div>
+        <div class="accent-line" aria-hidden="true"></div>
+        <div class="logo-container">
+          <img src="https://raw.githubusercontent.com/beastcooper/Tacopanda_Arcade/master/arcade_logo.png" alt="Tacopanda Logo">
+        </div>
+       </div>
+      </div>
+
+      <!-- Interactive Games Screen -->
+      <div id="games-screen">
+       <div class="launcher-header">
+        <div id="count">0 games</div>
+        <!-- Shrunk splash screen image replacing former taco -->
+        <div class="logo-badge">
+          <img src="https://raw.githubusercontent.com/beastcooper/Tacopanda_Arcade/master/arcade_logo.png" alt="Tacopanda Mini Logo">
+        </div>
+        <h1>Tacopanda Games</h1>
+        <div id="launcher-nav-tabs">
+          <button id="tab-all" class="launcher-tab active" onclick="switchTab('all')">All Games</button>
+          <button id="tab-favorites" class="launcher-tab" onclick="switchTab('favorites')">Favorites</button>
+        </div>
+       </div>
+       
+       <input id="search" placeholder="Search the taco universe..." oninput="filterGames()">
+       
+       <div id="games-wrapper">
+        <div id="games"></div>
+        <div id="empty-state" style="display:none;">No games found</div>
+       </div>
+       
+       <div class="launcher-footer">Forged in guac by the Tacopanda Team</div>
+      </div>
+     </div>
+
+     <!-- PAGE: SOUNDBOARD -->
+     <div id="soundboard-page" class="h-full min-h-0 flex flex-col hidden">
+      <header class="site-panel border-b px-6 py-4 flex items-center justify-between shrink-0">
+       <div>
+        <h1 class="text-lg font-bold text-white">Soundboard</h1>
+        <p id="soundboard-count" class="text-xs text-slate-400">Loading…</p>
+       </div>
+       <button id="soundboard-stop-btn" class="px-4 py-2 bg-red-900/60 hover:bg-red-800/80 text-red-200 text-sm font-semibold rounded-lg border border-red-700 transition-colors">Stop All</button>
+      </header>
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scroll p-6">
+       <div class="max-w-4xl mx-auto">
+        <div id="soundboard-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+        <p id="soundboard-empty" class="text-center text-slate-500 text-sm py-12">Loading sounds…</p>
+        <p class="text-center text-slate-600 text-xs mt-6">Press Space to stop whatever's playing</p>
+       </div>
+      </div>
+     </div>
+
+     <!-- PAGE 2: FULL TACOPANDA CHATROOM APPLICATION -->
+     <div id="chat-page" class="h-full flex flex-col hidden">
+
+   <!-- Loading overlay -->
+   <div id="loading-overlay" class="loading-overlay">
+    <div class="flat-panel p-6 text-center rounded-lg">
+     <p class="text-lg font-semibold text-white">Loading chat</p>
+     <p class="text-xs mt-2 text-slate-400" id="loading-msg">Just a moment...</p>
+    </div>
+   </div>
+
+   <!-- Auth Screen (only required to use the chatroom) -->
+   <div id="auth-screen" class="h-full flex flex-col hidden">
+    <div class="flex-1 overflow-y-auto chat-scroll flex items-center justify-center p-6">
+     <div class="w-full max-w-md flat-panel p-8 rounded-2xl">
+      <!-- CREATE ACCOUNT FORM -->
+      <div id="create-account-form">
+       <h2 class="text-lg font-bold text-white mb-1">Create your account</h2>
+       <p class="text-xs text-slate-400 mb-6">Needed for the chatroom only — takes about ten seconds.</p>
+       <div class="space-y-4">
+        <div>
+         <label class="block text-xs font-semibold mb-1.5 text-slate-300">Username</label>
+         <input type="text" id="login-username-input" placeholder="Pick a username" class="w-full px-3.5 py-2.5 custom-input rounded-lg text-sm">
+         <p class="text-xs mt-1.5 text-slate-500">2+ characters. Letters, numbers, underscores.</p>
+         <p id="login-error" class="text-red-400 text-xs mt-1.5 hidden"></p>
+        </div>
+        <div>
+         <label class="block text-xs font-semibold mb-1.5 text-slate-300">Tag</label>
+         <input type="text" id="login-tag-input" placeholder="e.g. Tacopanda" class="w-full px-3.5 py-2.5 custom-input rounded-lg text-sm">
+         <p class="text-xs mt-1.5 text-slate-500">Your @handle for mentions — letters, numbers, underscores, no spaces.</p>
+         <p id="login-tag-error" class="text-red-400 text-xs mt-1.5 hidden"></p>
+        </div>
+        <div>
+         <label class="block text-xs font-semibold mb-1.5 text-slate-300">Password</label>
+         <input type="password" id="login-password-input" placeholder="Choose a password" class="w-full px-3.5 py-2.5 custom-input rounded-lg text-sm">
+         <p class="text-xs mt-1.5 text-slate-500">Minimum 4 characters.</p>
+        </div>
+        <div>
+         <label class="block text-xs font-semibold mb-1.5 text-slate-300">Verify password</label>
+         <input type="password" id="login-password-confirm" placeholder="Confirm password" class="w-full px-3.5 py-2.5 custom-input rounded-lg text-sm">
+        </div>
+        <button id="login-btn" class="w-full py-2.5 mt-2 flat-button font-semibold rounded-lg text-sm">Create Account</button>
+        <button id="switch-to-login-btn" type="button" class="w-full py-2 text-slate-400 hover:text-slate-200 text-sm transition-colors">Already have an account? Log in</button>
+       </div>
+      </div>
+      <!-- LOGIN FORM -->
+      <div id="login-form" class="hidden">
+       <h2 class="text-lg font-bold text-white mb-1">Welcome back</h2>
+       <p class="text-xs text-slate-400 mb-6">Log in to use the chatroom.</p>
+       <div class="space-y-4">
+        <div>
+         <label class="block text-xs font-semibold mb-1.5 text-slate-300">Username</label>
+         <input type="text" id="existing-username-input" placeholder="Enter username" class="w-full px-3.5 py-2.5 custom-input rounded-lg text-sm">
+         <p id="login-error-existing" class="text-red-400 text-xs mt-1.5 hidden"></p>
+        </div>
+        <div>
+         <label class="block text-xs font-semibold mb-1.5 text-slate-300">Password</label>
+         <input type="password" id="existing-password-input" placeholder="Enter password" class="w-full px-3.5 py-2.5 custom-input rounded-lg text-sm">
+        </div>
+        <button id="existing-login-btn" class="w-full py-2.5 mt-2 flat-button font-semibold rounded-lg text-sm">Log In</button>
+        <button id="switch-to-create-btn" type="button" class="w-full py-2 text-slate-400 hover:text-slate-200 text-sm transition-colors">Need an account? Sign up</button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <!-- Chat Screen -->
+   <div id="chat-screen" class="h-full min-h-0 flex flex-col hidden">
+    <header class="flat-panel px-4 py-3 flex items-center justify-between shrink-0 border-b">
+     <div>
+      <h1 class="text-base font-semibold text-white">Chat</h1>
+      <p id="user-role-display" class="text-xs text-slate-400"></p>
+     </div>
+     <div id="chat-header-actions" class="flex items-center gap-2">
+      <button id="rooms-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Rooms</button>
+      <button id="dashboard-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Online</button>
+      <button id="notifications-btn" class="relative px-3 py-1.5 flat-button text-xs font-medium rounded-lg">
+       Notifications
+       <span id="notifications-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+      </button>
+      <button id="admin-btn" class="relative px-3 py-1.5 flat-button text-xs font-medium rounded-lg hidden">
+       Admin
+       <span id="admin-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">0</span>
+      </button>
+      <button id="account-top-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Profile</button>
+     </div>
+    </header>
+    <div id="room-view" class="flex-1 min-h-0 flex flex-col border-t border-gray-800">
+     <div class="flat-panel px-4 py-3 flex items-center justify-between shrink-0 border-b">
+      <div>
+       <h2 id="room-title" class="text-lg font-semibold text-orange-400">Main channel</h2>
+       <p id="room-description" class="text-xs text-slate-400">General Tacopanda chat</p>
+      </div>
+     </div>
+     <div id="messages-container" class="flex-1 min-h-0 overflow-y-auto chat-scroll p-4 space-y-3"></div>
+     <div class="flat-panel p-4 border-t">
+      <div id="reply-banner" class="hidden items-center justify-between gap-3 mb-3 px-3 py-2 bg-gray-900/60 border border-slate-700 rounded-lg">
+       <p class="text-xs text-slate-300 truncate">Replying to <span id="reply-banner-username" class="text-orange-400 font-semibold"></span>: <span id="reply-banner-content" class="italic"></span></p>
+       <button type="button" id="reply-banner-cancel-btn" class="text-slate-400 hover:text-white text-xs shrink-0">✕</button>
+      </div>
+      <form id="message-form" class="flex gap-3">
+       <input type="text" id="message-input" placeholder="Type a message (use @tag to mention someone)" class="flex-1 px-4 py-3 custom-input rounded-lg text-sm">
+       <button type="submit" id="send-btn" class="px-6 py-3 flat-button font-semibold rounded-lg text-sm">Send</button>
+      </form>
+      <div id="guest-signin-prompt" class="hidden items-center justify-between gap-3">
+       <p class="text-sm text-slate-300">You're viewing live — sign in to send messages.</p>
+       <button id="guest-signin-btn" class="px-5 py-2.5 flat-button font-semibold rounded-lg text-sm shrink-0">Sign in to chat</button>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <!-- Rooms Page -->
+   <div id="rooms-page" class="h-full flex flex-col hidden">
+    <header class="flat-panel px-4 py-3 flex items-center justify-between shrink-0 border-b">
+     <div>
+      <h1 class="text-base font-semibold text-white">Channels</h1><p class="text-xs text-slate-400">Select a room to join</p>
+     </div>
+     <button id="rooms-back-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Back</button>
+    </header>
+    <div class="flex-1 overflow-y-auto chat-scroll p-6">
+     <div class="max-w-2xl mx-auto space-y-4">
+      <div>
+       <h3 class="text-orange-400 font-semibold text-sm mb-3">Public channels</h3>
+       <div class="space-y-3">
+        <button id="main-room-btn-page" class="w-full p-4 flat-panel rounded-lg transition-all hover:bg-gray-800 text-left">
+         <div class="flex items-center justify-between">
+          <div><h3 class="font-semibold text-orange-400 text-base">Main</h3><p class="text-slate-400 text-xs">Primary hub</p></div>
+          <div class="text-right"><p id="main-room-count-page" class="text-emerald-400 font-semibold text-base">0</p><p class="text-slate-500 text-xs">online</p></div>
+         </div>
+        </button>
+        <button id="homework-room-btn-page" class="w-full p-4 flat-panel rounded-lg transition-all hover:bg-gray-800 text-left">
+         <div class="flex items-center justify-between">
+          <div><h3 class="font-semibold text-orange-400 text-base">Announcements</h3><p class="text-slate-400 text-xs">Admin announcements</p></div>
+          <div class="text-right"><p id="homework-room-count-page" class="text-emerald-400 font-semibold text-base">0</p><p class="text-slate-500 text-xs">online</p></div>
+         </div>
+        </button>
+       </div>
+      </div>
+      <div>
+       <div class="flex items-center justify-between mb-3">
+        <h3 class="text-orange-400 font-semibold text-sm">Private channels</h3>
+        <button id="create-room-btn" class="px-3 py-1 flat-button text-xs font-medium rounded-lg">Create</button>
+       </div>
+       <div id="private-rooms-list" class="space-y-3"><p class="text-slate-500 text-sm py-4 text-center">No private channels</p></div>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <!-- Dashboard Page -->
+   <div id="dashboard-page" class="h-full flex flex-col hidden">
+    <header class="flat-panel px-4 py-3 flex items-center justify-between shrink-0 border-b">
+     <div>
+      <h1 class="text-base font-semibold text-white">Online members</h1><p class="text-xs text-slate-400">Active in this channel</p>
+     </div>
+     <button id="dashboard-back-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Back</button>
+    </header>
+    <div class="flex-1 overflow-y-auto chat-scroll p-6">
+     <div id="dashboard-users-list" class="max-w-2xl mx-auto space-y-3"><p class="text-slate-500 text-center py-8">No users active</p></div>
+    </div>
+   </div>
+
+   <!-- Admin Modal Panel -->
+   <div id="admin-modal-panel" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel w-full max-w-2xl flex flex-col max-h-[90%] rounded-lg overflow-hidden">
+     <header class="flat-panel border-b px-6 py-4 flex items-center justify-between shrink-0">
+      <div><h1 class="text-base font-semibold text-white">Admin</h1><p class="text-xs text-slate-400">Server management</p></div>
+      <button id="admin-modal-close-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Close</button>
+     </header>
+     <div class="flex-1 overflow-y-auto chat-scroll p-6 space-y-6">
+      <div><h2 class="text-sm font-semibold text-orange-400 mb-3">Reported messages</h2><div id="admin-reported-messages" class="space-y-3"><p class="text-slate-500 text-center py-2 text-sm">No reports</p></div></div>
+      <div><h2 class="text-sm font-semibold text-orange-400 mb-3">Mod requests</h2><div id="admin-pending-requests" class="space-y-3"><p class="text-slate-500 text-center py-2 text-sm">No pending requests</p></div></div>
+      <div><h2 class="text-sm font-semibold text-orange-400 mb-3">Approved mods</h2><div id="admin-approved-mods" class="space-y-3"><p class="text-slate-500 text-center py-2 text-sm">No approved moderators</p></div></div>
+      <div><h2 class="text-sm font-semibold text-orange-400 mb-3">Unban requests</h2><div id="admin-unban-requests" class="space-y-3"><p class="text-slate-500 text-center py-2 text-sm">No unban requests</p></div></div>
+      <div><h2 class="text-sm font-semibold text-orange-400 mb-3">Manage users</h2><div id="admin-bannable-users" class="space-y-3"><p class="text-slate-500 text-center py-2 text-sm">No users to manage</p></div></div>
+     </div>
+    </div>
+   </div>
+
+   <!-- Account Page -->
+   <div id="account-page" class="h-full flex flex-col hidden">
+    <header class="flat-panel px-4 py-3 flex items-center justify-between shrink-0 border-b">
+     <div><h1 class="text-base font-semibold text-white">Profile settings</h1><p class="text-xs text-slate-400">Manage your account</p></div>
+     <button id="account-back-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Back</button>
+    </header>
+    <div class="flex-1 overflow-y-auto chat-scroll p-6">
+     <div class="max-w-2xl mx-auto space-y-6">
+      <div class="flex flex-col items-center gap-3">
+       <img id="account-page-avatar-preview" src="" alt="Avatar preview" class="w-20 h-20 rounded-full object-cover border border-slate-700 bg-slate-800">
+       <div class="w-full">
+        <label class="text-orange-400 text-sm font-semibold mb-2 block">Profile picture</label>
+        <input type="file" id="account-page-avatar-input" accept="image/*" class="hidden">
+        <button type="button" id="account-page-avatar-choose-btn" class="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm font-semibold transition-colors mb-2">Choose image…</button>
+        <p id="account-page-avatar-filename" class="text-xs text-slate-500 mb-2 truncate"></p>
+        <button id="account-page-avatar-btn" class="w-full py-2 flat-button font-semibold rounded-lg text-sm">Upload avatar</button>
+       </div>
+      </div>
+      <div><h3 class="text-orange-400 text-sm font-semibold mb-2">Current username</h3><p id="account-page-current-username" class="text-slate-200 px-4 py-3 flat-panel rounded-lg"></p></div>
+      <div>
+       <label class="text-orange-400 text-sm font-semibold mb-2 block">Change username</label>
+       <input type="text" id="account-page-new-username" placeholder="New username" class="w-full px-4 py-3 custom-input rounded-lg text-sm mb-3">
+       <button id="account-page-change-name-btn" class="w-full py-3 flat-button font-semibold rounded-lg text-sm">Update username</button>
+      </div>
+      <div><h3 class="text-orange-400 text-sm font-semibold mb-2">Current tag</h3><p id="account-page-current-tag" class="text-slate-200 px-4 py-3 flat-panel rounded-lg font-mono"></p></div>
+      <div>
+       <label class="text-orange-400 text-sm font-semibold mb-2 block">Change tag</label>
+       <input type="text" id="account-page-new-tag" placeholder="New tag (no @, no spaces)" class="w-full px-4 py-3 custom-input rounded-lg text-sm mb-3">
+       <button id="account-page-change-tag-btn" class="w-full py-3 flat-button font-semibold rounded-lg text-sm">Update tag</button>
+      </div>
+      <div>
+       <label class="text-orange-400 text-sm font-semibold mb-2 block">Bio</label>
+       <textarea id="account-page-bio-input" rows="3" placeholder="A short bio (shown on your profile)" class="w-full px-4 py-3 custom-input rounded-lg text-sm resize-none mb-3"></textarea>
+       <button id="account-page-bio-btn" class="w-full py-3 flat-button font-semibold rounded-lg text-sm">Update bio</button>
+      </div>
+      <div>
+       <h3 class="text-orange-400 text-sm font-semibold mb-2">Social links</h3>
+       <p class="text-xs text-slate-500 mb-3">Shown on your public profile. Leave blank to hide.</p>
+       <div class="space-y-2 mb-3">
+        <input type="text" id="account-page-social-youtube" placeholder="YouTube URL" class="w-full px-4 py-2.5 custom-input rounded-lg text-sm">
+        <input type="text" id="account-page-social-twitch" placeholder="Twitch URL" class="w-full px-4 py-2.5 custom-input rounded-lg text-sm">
+        <input type="text" id="account-page-social-x" placeholder="X / Twitter URL" class="w-full px-4 py-2.5 custom-input rounded-lg text-sm">
+        <input type="text" id="account-page-social-other" placeholder="Other link" class="w-full px-4 py-2.5 custom-input rounded-lg text-sm">
+       </div>
+       <button id="account-page-socials-btn" class="w-full py-3 flat-button font-semibold rounded-lg text-sm">Update social links</button>
+      </div>
+      <div><h3 class="text-orange-400 text-sm font-semibold mb-2">Current role</h3><p id="account-page-current-role" class="text-slate-200 px-4 py-3 flat-panel rounded-lg"></p></div>
+      <p class="text-xs text-slate-500">Moderator and admin roles are granted by the site owner — reach out if you'd like one.</p>
+      <div>
+       <h3 class="text-orange-400 text-sm font-semibold mb-2">Add a friend</h3>
+       <input type="text" id="account-page-friend-search" placeholder="Search by username or tag" class="w-full px-4 py-3 custom-input rounded-lg text-sm mb-3">
+       <div id="account-page-friend-search-results" class="space-y-2 mb-3"></div>
+      </div>
+      <div>
+       <h3 class="text-orange-400 text-sm font-semibold mb-2">My friends</h3>
+       <div id="account-page-friends-list" class="space-y-2"><p class="text-slate-500 text-sm py-2 text-center">No friends yet</p></div>
+      </div>
+      <button id="account-page-logout-btn" class="w-full py-3 bg-red-900/60 hover:bg-red-800/80 text-red-200 font-semibold rounded-lg transition-all border border-red-700 text-sm">Log out</button>
+     </div>
+    </div>
+   </div>
+
+   <!-- Create Room Modal -->
+   <div id="create-room-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel rounded-lg p-6 w-full max-w-sm">
+     <h2 class="text-lg font-semibold text-white mb-4">Create channel</h2>
+     <div class="space-y-4">
+      <div><label class="text-orange-400 text-xs font-semibold mb-2 block">Channel name</label><input type="text" id="room-name-input" placeholder="e.g., Taco Lounge" class="w-full px-4 py-3 custom-input rounded-lg text-sm"></div>
+      <div><label class="text-orange-400 text-xs font-semibold mb-2 block">Description</label><input type="text" id="room-description-input" placeholder="Channel purpose" class="w-full px-4 py-3 custom-input rounded-lg text-sm"></div>
+     </div>
+     <div class="flex gap-3 mt-6">
+      <button id="create-room-cancel-btn" class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors font-medium text-sm">Cancel</button>
+      <button id="create-room-confirm-btn" class="flex-1 py-2 flat-button text-white font-semibold rounded-lg text-sm">Create</button>
+     </div>
+    </div>
+   </div>
+
+   <!-- Invite Modal -->
+   <div id="invite-room-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel rounded-lg p-6 w-full max-w-sm flex flex-col max-h-[90vh]">
+     <h2 class="text-lg font-semibold text-white mb-4">Invite to <span id="invite-room-name" class="text-orange-400"></span></h2>
+     <input type="text" id="invite-search-input" placeholder="Search users" class="w-full px-4 py-2 custom-input rounded-lg text-sm mb-3">
+     <div id="invite-users-list" class="flex-1 overflow-y-auto chat-scroll space-y-2 mb-4 min-h-[160px]"><p class="text-slate-500 text-sm text-center py-4">No users found</p></div>
+     <div class="mb-3 p-2 flat-panel rounded-lg min-h-[40px]">
+      <p class="text-orange-400 text-xs font-semibold mb-1">Selected: <span id="invite-selected-count">0</span></p>
+      <div id="invite-selected-list" class="flex flex-wrap gap-1"></div>
+     </div>
+     <div class="flex gap-3">
+      <button id="invite-cancel-btn" class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors font-medium text-sm">Cancel</button>
+      <button id="invite-confirm-btn" class="flex-1 py-2 flat-button font-semibold rounded-lg text-sm">Invite</button>
+     </div>
+    </div>
+   </div>
+
+   <!-- Report Modal -->
+   <div id="report-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel rounded-lg p-6 w-full max-w-sm">
+     <h2 class="text-lg font-semibold text-white mb-4">Report message</h2>
+     <div class="flat-panel rounded-lg p-3 mb-4">
+      <p class="text-orange-400 text-xs mb-1">From: <span id="report-username" class="text-gray-200 font-semibold"></span></p>
+      <p class="text-gray-300 text-xs"><span id="report-content"></span></p>
+     </div>
+     <div><label class="text-orange-400 text-xs font-semibold mb-2 block">Reason</label><textarea id="report-reason-input" placeholder="Explain the issue" rows="3" class="w-full px-4 py-3 custom-input rounded-lg text-sm resize-none"></textarea></div>
+     <div class="flex gap-3 mt-4">
+      <button id="report-cancel-btn" class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors font-medium text-sm">Cancel</button>
+      <button id="report-submit-btn" class="flex-1 py-2 flat-button font-semibold rounded-lg text-sm">Submit</button>
+     </div>
+    </div>
+   </div>
+
+   <!-- Ban Modal -->
+   <div id="ban-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel rounded-lg p-6 w-full max-w-sm">
+     <h2 class="text-lg font-semibold text-white mb-4">Ban <span id="ban-modal-username">user</span></h2>
+     <div id="ban-duration-section">
+      <p class="text-xs text-orange-400 mb-3">Ban duration (minutes)</p>
+      <div class="space-y-3 mb-4">
+       <input type="range" id="ban-duration-slider" min="1" max="60" value="15" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+       <div class="flex items-center justify-between p-2 flat-panel rounded-lg"><span class="text-xs text-slate-400">Duration:</span><span id="ban-duration-display" class="text-orange-400 font-semibold text-base">15 minutes</span></div>
+      </div>
+     </div>
+     <label id="ban-permanent-row" class="hidden items-center gap-2 mb-4 cursor-pointer">
+      <input type="checkbox" id="ban-permanent-checkbox" class="w-4 h-4">
+      <span class="text-sm text-slate-300">Permanent ban</span>
+     </label>
+     <div>
+      <label class="text-xs text-orange-400 font-semibold mb-2 block">Reason (required)</label>
+      <textarea id="ban-reason-input" placeholder="Explain why" rows="3" class="w-full px-4 py-3 custom-input rounded-lg text-sm resize-none mb-2"></textarea>
+      <p id="ban-reason-error" class="text-red-400 text-xs hidden mb-2">Please provide a reason</p>
+     </div>
+     <div class="flex gap-3">
+      <button id="ban-cancel-btn" class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors font-medium text-sm">Cancel</button>
+      <button id="ban-confirm-btn" class="flex-1 py-2 flat-button font-semibold rounded-lg text-sm">Confirm ban</button>
+     </div>
+    </div>
+   </div>
+
+   <!-- Mod Request Modal -->
+   <div id="mod-request-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel rounded-lg p-6 w-full max-w-sm">
+     <h2 class="text-lg font-semibold text-white mb-4">Moderator request</h2>
+     <p class="text-xs text-orange-400 mb-3">Tell us why</p>
+     <textarea id="mod-reason-input" placeholder="Why should you be a mod?" rows="4" class="w-full px-4 py-3 custom-input rounded-lg text-sm resize-none"></textarea>
+     <div class="flex gap-3 mt-4">
+      <button id="mod-request-cancel-btn" class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors font-medium text-sm">Cancel</button>
+      <button id="mod-request-submit-btn" class="flex-1 py-2 flat-button font-semibold rounded-lg text-sm">Submit</button>
+     </div>
+    </div>
+   </div>
+
+   <!-- Profile View Modal (view-only: avatar, name, tag, role, bio, socials) -->
+   <div id="profile-view-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel rounded-lg p-6 w-full max-w-sm">
+     <div class="flex flex-col items-center text-center mb-4">
+      <img id="profile-view-avatar" src="" alt="Avatar" class="w-20 h-20 rounded-full object-cover border border-slate-700 mb-3 bg-slate-800">
+      <h2 id="profile-view-username" class="text-lg font-bold text-white"></h2>
+      <p id="profile-view-tag" class="text-orange-400 text-sm font-mono"></p>
+      <div id="profile-view-role" class="mt-2"></div>
+     </div>
+     <p id="profile-view-bio" class="text-slate-300 text-sm text-center mb-4"></p>
+     <div id="profile-view-socials" class="space-y-2 mb-4"></div>
+     <div class="flex gap-3">
+      <button id="profile-view-friend-btn" class="flex-1 py-2 flat-button font-semibold rounded-lg text-sm"></button>
+      <button id="profile-view-close-btn" class="flex-1 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors font-medium text-sm">Close</button>
+     </div>
+    </div>
+   </div>
+
+   <!-- Notifications Modal: mentions + incoming friend requests -->
+   <div id="notifications-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel w-full max-w-md flex flex-col max-h-[85%] rounded-lg overflow-hidden">
+     <header class="flat-panel border-b px-6 py-4 flex items-center justify-between shrink-0">
+      <div><h1 class="text-base font-semibold text-white">Notifications</h1></div>
+      <button id="notifications-close-btn" class="px-3 py-1.5 flat-button text-xs font-medium rounded-lg">Close</button>
+     </header>
+     <div class="flex-1 overflow-y-auto chat-scroll p-6 space-y-6">
+      <div>
+       <h2 class="text-sm font-semibold text-orange-400 mb-3">Friend requests</h2>
+       <div id="notifications-friend-requests" class="space-y-3"><p class="text-slate-500 text-center py-2 text-sm">No pending requests</p></div>
+      </div>
+      <div>
+       <h2 class="text-sm font-semibold text-orange-400 mb-3">Mentions</h2>
+       <div id="notifications-mentions" class="space-y-3"><p class="text-slate-500 text-center py-2 text-sm">No mentions yet</p></div>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <!-- Unban Modal -->
+   <div id="unban-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="flat-panel rounded-lg p-6 w-full max-w-sm">
+     <h2 class="text-lg font-semibold text-white mb-2">You've been banned</h2>
+     <p id="ban-time-remaining" class="text-xs text-slate-400 mb-4">Time remaining: <span class="text-orange-400 font-semibold">Loading...</span></p>
+     <div class="flat-panel rounded-lg p-3 mb-4">
+      <p class="text-xs text-orange-400 font-semibold mb-1">Reason:</p>
+      <p id="ban-reason-display" class="text-gray-300 text-xs italic"></p>
+     </div>
+     <div><label class="text-xs text-orange-400 font-semibold mb-2 block">Appeal this ban</label><textarea id="unban-reason-input" placeholder="Explain your appeal" rows="4" class="w-full px-4 py-3 custom-input rounded-lg text-sm resize-none"></textarea></div>
+     <div class="flex gap-3 mt-4"><button id="unban-submit-btn" class="flex-1 py-3 flat-button font-semibold rounded-lg text-sm">Submit appeal</button></div>
+    </div>
+   </div>
+     </div>
+
+    </div>
+   </div>
+
+   <!-- Toast Notification -->
+   <div id="toast" class="fixed bottom-6 right-6 site-panel px-4 py-3 rounded-xl shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 text-sm font-semibold text-white">
+    <p id="toast-message"></p>
+   </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // THEME CUSTOMIZATION
+    // ============================================================
+    const THEME_STORAGE_KEY = 'tacopanda_theme_color';
+    const THEME_BG_KEY = 'tacopanda_theme_bg';
+    const THEME_RADIUS_KEY = 'tacopanda_theme_radius';
+    const THEME_GLOW_KEY = 'tacopanda_theme_glow';
+    const DEFAULT_THEME_COLOR = '#ea580c';
+    const DEFAULT_BG = 'slate';
+    const DEFAULT_RADIUS = 12;
+    const DEFAULT_GLOW = 100;
+    const THEME_PRESETS = ['#ea580c','#ef4444','#f43f5e','#ec4899','#a855f7','#6366f1','#3b82f6','#06b6d4','#14b8a6','#22c55e','#84cc16','#eab308'];
+    const BG_PRESETS = {
+      slate:    { label: 'Slate',    bgDark: '#0f172a', panelDark: '#1e293b', panelBorder: '#334155', inputBg: '#0f172a', bg1: '#0b132b', bg2: '#060a17' },
+      midnight: { label: 'Midnight', bgDark: '#020617', panelDark: '#0f172a', panelBorder: '#1e293b', inputBg: '#020617', bg1: '#020617', bg2: '#000000' },
+      charcoal: { label: 'Charcoal', bgDark: '#18181b', panelDark: '#27272a', panelBorder: '#3f3f46', inputBg: '#18181b', bg1: '#141414', bg2: '#0a0a0a' },
+      plum:     { label: 'Plum',     bgDark: '#1e1b2e', panelDark: '#2a2440', panelBorder: '#413a5c', inputBg: '#1e1b2e', bg1: '#1a1330', bg2: '#0d0a1a' },
+      forest:   { label: 'Forest',   bgDark: '#0f1f17', panelDark: '#16281f', panelBorder: '#26402f', inputBg: '#0f1f17', bg1: '#0c1a13', bg2: '#060d09' },
+    };
+
+    function hexToRgb(hex) {
+      const h = hex.replace('#', '');
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    }
+    function shade(hex, percent) {
+      const [r, g, b] = hexToRgb(hex);
+      const mix = c => Math.round(Math.min(255, Math.max(0, percent > 0 ? c + (255 - c) * percent : c + c * percent)));
+      return '#' + [mix(r), mix(g), mix(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    function applyTheme(hex) {
+      const [r, g, b] = hexToRgb(hex);
+      const glowHex = shade(hex, 0.35);
+      const salsaHex = shade(hex, 0.15);
+      const [sr, sg, sb] = hexToRgb(salsaHex);
+      const root = document.documentElement.style;
+      root.setProperty('--taco-orange', hex);
+      root.setProperty('--taco-orange-hover', shade(hex, -0.25));
+      root.setProperty('--accent-color', hex);
+      root.setProperty('--glow-color', glowHex);
+      root.setProperty('--salsa-red', salsaHex);
+      root.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+      root.setProperty('--salsa-rgb', `${sr}, ${sg}, ${sb}`);
+      const customPicker = document.getElementById('theme-custom-color');
+      if (customPicker) customPicker.value = hex;
+    }
+    function setTheme(hex) {
+      applyTheme(hex);
+      localStorage.setItem(THEME_STORAGE_KEY, hex);
+    }
+
+    function applyBackground(key) {
+      const p = BG_PRESETS[key] || BG_PRESETS[DEFAULT_BG];
+      const root = document.documentElement.style;
+      root.setProperty('--bg-dark', p.bgDark);
+      root.setProperty('--panel-dark', p.panelDark);
+      root.setProperty('--panel-border', p.panelBorder);
+      root.setProperty('--input-bg', p.inputBg);
+      root.setProperty('--bg-color-1', p.bg1);
+      root.setProperty('--bg-color-2', p.bg2);
+      document.querySelectorAll('#theme-bg-swatches button').forEach(b => {
+        b.classList.toggle('ring-2', b.dataset.key === key);
+        b.classList.toggle('ring-white', b.dataset.key === key);
+      });
+    }
+    function setBackground(key) {
+      applyBackground(key);
+      localStorage.setItem(THEME_BG_KEY, key);
+    }
+
+    function applyRadius(px) {
+      document.documentElement.style.setProperty('--ui-radius', `${px}px`);
+    }
+    function setRadius(px) {
+      applyRadius(px);
+      localStorage.setItem(THEME_RADIUS_KEY, px);
+    }
+
+    function applyGlow(pct) {
+      document.documentElement.style.setProperty('--glow-alpha', pct / 100);
+    }
+    function setGlow(pct) {
+      applyGlow(pct);
+      localStorage.setItem(THEME_GLOW_KEY, pct);
+    }
+
+    function resetTheme() {
+      setTheme(DEFAULT_THEME_COLOR);
+      setBackground(DEFAULT_BG);
+      setRadius(DEFAULT_RADIUS);
+      setGlow(DEFAULT_GLOW);
+      document.getElementById('theme-radius-slider').value = DEFAULT_RADIUS;
+      document.getElementById('theme-glow-slider').value = DEFAULT_GLOW;
+    }
+
+    // Apply saved (or default) theme immediately on load.
+    applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || DEFAULT_THEME_COLOR);
+    applyBackground(localStorage.getItem(THEME_BG_KEY) || DEFAULT_BG);
+    applyRadius(localStorage.getItem(THEME_RADIUS_KEY) || DEFAULT_RADIUS);
+    applyGlow(localStorage.getItem(THEME_GLOW_KEY) || DEFAULT_GLOW);
+
+    const swatchContainer = document.getElementById('theme-swatches');
+    THEME_PRESETS.forEach(hex => {
+      const swatch = document.createElement('button');
+      swatch.className = 'w-9 h-9 rounded-lg border border-slate-700 hover:scale-110 transition-transform';
+      swatch.style.backgroundColor = hex;
+      swatch.title = hex;
+      swatch.onclick = () => setTheme(hex);
+      swatchContainer.appendChild(swatch);
+    });
+
+    const bgSwatchContainer = document.getElementById('theme-bg-swatches');
+    Object.entries(BG_PRESETS).forEach(([key, p]) => {
+      const swatch = document.createElement('button');
+      swatch.dataset.key = key;
+      swatch.title = p.label;
+      swatch.className = 'h-9 rounded-lg border border-slate-700 hover:scale-105 transition-transform';
+      swatch.style.backgroundColor = p.bgDark;
+      swatch.onclick = () => setBackground(key);
+      bgSwatchContainer.appendChild(swatch);
+    });
+    applyBackground(localStorage.getItem(THEME_BG_KEY) || DEFAULT_BG);
+
+    const radiusSlider = document.getElementById('theme-radius-slider');
+    radiusSlider.value = localStorage.getItem(THEME_RADIUS_KEY) || DEFAULT_RADIUS;
+    radiusSlider.addEventListener('input', e => setRadius(e.target.value));
+
+    const glowSlider = document.getElementById('theme-glow-slider');
+    glowSlider.value = localStorage.getItem(THEME_GLOW_KEY) || DEFAULT_GLOW;
+    glowSlider.addEventListener('input', e => setGlow(e.target.value));
+
+    document.getElementById('theme-custom-color').addEventListener('input', e => setTheme(e.target.value));
+    document.getElementById('theme-reset-btn').onclick = resetTheme;
+    document.getElementById('theme-btn').onclick = () => document.getElementById('theme-panel').classList.toggle('hidden');
+    document.addEventListener('click', e => {
+      const panel = document.getElementById('theme-panel');
+      const btn = document.getElementById('theme-btn');
+      if (!panel.classList.contains('hidden') && !panel.contains(e.target) && !btn.contains(e.target)) {
+        panel.classList.add('hidden');
+      }
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      t.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
+    }
+
+    function switchPage(page) {
+      ['home-page', 'games-page', 'chat-page', 'soundboard-page'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      ['nav-home-btn', 'nav-games-btn', 'nav-chat-btn', 'nav-soundboard-btn'].forEach(id => document.getElementById(id).classList.remove('active'));
+
+      if (page === 'home') {
+        document.getElementById('home-page').classList.remove('hidden');
+        document.getElementById('nav-home-btn').classList.add('active');
+      } else if (page === 'games') {
+        document.getElementById('games-page').classList.remove('hidden');
+        document.getElementById('nav-games-btn').classList.add('active');
+      } else if (page === 'chat') {
+        document.getElementById('chat-page').classList.remove('hidden');
+        document.getElementById('nav-chat-btn').classList.add('active');
+        if (window.tacoChatOpen) window.tacoChatOpen();
+      } else if (page === 'soundboard') {
+        document.getElementById('soundboard-page').classList.remove('hidden');
+        document.getElementById('nav-soundboard-btn').classList.add('active');
+      }
+    }
+
+    document.getElementById('nav-home-btn').onclick = () => switchPage('home');
+    document.getElementById('nav-games-btn').onclick = () => switchPage('games');
+    document.getElementById('nav-chat-btn').onclick = () => switchPage('chat');
+    document.getElementById('nav-soundboard-btn').onclick = () => switchPage('soundboard');
+    document.getElementById('brand-home-btn').onclick = () => switchPage('home');
+    document.getElementById('home-play-games-btn').onclick = () => switchPage('games');
+    document.getElementById('home-open-chat-btn').onclick = () => switchPage('chat');
+    document.getElementById('nav-logout-btn').onclick = () => { if (window.tacoChatLogout) window.tacoChatLogout(); };
+    document.getElementById('nav-signin-btn').onclick = () => {
+      switchPage('chat');
+      if (window.tacoChatShowAuth) window.tacoChatShowAuth();
+    };
+
+    window.onTacoLoginStateChanged = function (username) {
+      const status = document.getElementById('user-status');
+      const signInBtn = document.getElementById('nav-signin-btn');
+      if (username) {
+        status.classList.remove('hidden');
+        status.classList.add('flex');
+        document.getElementById('nav-username-display').textContent = username;
+        signInBtn.classList.add('hidden');
+      } else {
+        status.classList.add('hidden');
+        status.classList.remove('flex');
+        signInBtn.classList.remove('hidden');
+      }
+    };
+
+    window.tacoChatGoHome = function () { switchPage('games'); };
+    window.tacoChatGoToHomePage = function () { switchPage('home'); };
+
+    function initSplashScreen() {
+      const pc = document.getElementById('particles');
+      const colors = ['var(--accent-color)','var(--glow-color)','var(--salsa-red)','#f4f5f6'];
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div'); p.className = 'particle';
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.left = '50%'; p.style.top = '40%';
+        const angle = (Math.PI*2*i)/30, dist = 80+Math.random()*200;
+        const tx = Math.cos(angle)*dist, ty = Math.sin(angle)*dist, dur = 1+Math.random()*0.5;
+        p.animate([
+          {opacity:0,transform:'translate(-50%,-50%) scale(0)'},
+          {opacity:1,transform:`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(1)`,offset:0.3},
+          {opacity:0,transform:`translate(calc(-50% + ${tx*1.5}px),calc(-50% + ${ty*1.5}px)) scale(0)`}
+        ],{duration:dur*1000,delay:800,easing:'cubic-bezier(0.16,1,0.3,1)',fill:'forwards'});
+        pc.appendChild(p);
+      }
+      setTimeout(() => {
+        document.getElementById('splash-screen').classList.add('hidden');
+        document.getElementById('games-screen').classList.add('visible');
+      }, 3000);
+    }
+
+    let allGames = [], favorites = [], currentTab = 'all';
+    function loadFavorites() { favorites = JSON.parse(localStorage.getItem('gamesFavorites') || '[]'); }
+    function saveFavorites() { localStorage.setItem('gamesFavorites', JSON.stringify(favorites)); }
+    function isFavorited(key) { return favorites.some(f => f.key === key); }
+    function addFavorite(game) {
+      if (!isFavorited(game.key)) { favorites.push(game); saveFavorites(); renderGames(currentTab==='all'?filterCurrentGames():favorites); updateStarButtons(); }
+    }
+    function removeFavorite(key) {
+      favorites = favorites.filter(f => f.key !== key); saveFavorites(); renderGames(currentTab==='all'?filterCurrentGames():favorites); updateStarButtons();
+    }
+    function switchTab(tab) {
+      currentTab = tab; localStorage.setItem('gamesCurrentTab', tab);
+      document.getElementById('tab-all').classList.toggle('active', tab==='all');
+      document.getElementById('tab-favorites').classList.toggle('active', tab==='favorites');
+      document.getElementById('search').style.display = tab==='all'?'block':'none';
+      renderGames(tab==='all'?filterCurrentGames():favorites);
+    }
+    function gameExists(key) { return allGames.some(g => g.key === key); }
+    async function loadGames() {
+      const owner="beastcooper", repo="Tacopanda_Arcade", branch="master", basePath="offline";
+      const api = async (path="") => {
+        const fp = path ? `${basePath}/${path}` : basePath;
+        return (await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${fp}?ref=${branch}`)).json();
+      };
+      try {
+        const items = await api();
+        if (!Array.isArray(items)) return;
+        for (const item of items) {
+          if (item.type==="file" && (item.name.endsWith(".html")||item.name.endsWith(".htm")))
+            addGame(item.name.replace(/\.(html|htm)$/i,""), item.download_url);
+          if (item.type==="dir") {
+            const files = await api(item.name);
+            const idx = files.find(f => f.name.toLowerCase()==="index.html"||f.name.toLowerCase()==="index.htm");
+            if (idx) addGame(item.name, idx.download_url);
+          }
+        }
+        allGames.sort((a,b)=>a.name.localeCompare(b.name));
+        renderGames(allGames); document.getElementById("count").textContent = `${allGames.length} games`;
+      } catch(e) { console.error(e); }
+    }
+    function addGame(key, url) {
+      if (gameExists(key)) return;
+      allGames.push({ key, name: key.replace(/[-_]/g," "), url, image: url.replace(/\.(html|htm)$/,".png") });
+    }
+    async function launchGame(url) {
+      const res = await fetch(url); const html = await res.text();
+      const win = window.open("about:blank#Tacopanda"); win.document.write(html); win.document.close();
+    }
+    function filterCurrentGames() {
+      const q = document.getElementById("search").value.toLowerCase();
+      return allGames.filter(g => g.name.toLowerCase().includes(q));
+    }
+    function updateStarButtons() {
+      document.querySelectorAll('.star-btn').forEach(btn => {
+        const key = btn.dataset.gameKey;
+        btn.classList.toggle('favorited', isFavorited(key));
+        btn.textContent = isFavorited(key) ? '★' : '☆';
+      });
+    }
+    function renderGames(list) {
+      const grid = document.getElementById("games");
+      const empty = document.getElementById("empty-state");
+      grid.innerHTML = "";
+      if (!list.length) { empty.style.display='block'; return; }
+      empty.style.display = 'none';
+      list.forEach(game => {
+        const container = document.createElement("div"); container.className = "game-card";
+
+        const btn = document.createElement("button"); btn.className = "game-btn";
+        btn.onclick = () => launchGame(game.url);
+
+        const img = document.createElement("img"); img.src=game.image; img.alt=game.name; img.onerror=()=>img.style.display="none";
+        
+        const ring = document.createElement("div"); ring.className = "saturn-ring";
+        const title = document.createElement("span"); title.textContent = game.name;
+        ring.appendChild(title);
+
+        const star = document.createElement("button"); star.className="star-btn"; star.dataset.gameKey=game.key;
+        star.textContent = isFavorited(game.key)?'★':'☆';
+        if (isFavorited(game.key)) star.classList.add('favorited');
+        star.onclick = (e) => { e.stopPropagation(); isFavorited(game.key)?removeFavorite(game.key):addFavorite(game); };
+
+        btn.append(img);
+        container.append(btn, ring, star);
+        grid.appendChild(container);
+      });
+    }
+    function filterGames() {
+      if (currentTab==='all') { localStorage.setItem('gamesSearchQuery',document.getElementById("search").value); renderGames(filterCurrentGames()); }
+    }
+
+    // ============================================================
+    // SOUNDBOARD — sounds are fetched from the same GitHub repo pattern as
+    // the games launcher, with a jsDelivr CDN fallback in case a direct
+    // GitHub fetch is rate-limited or blocked.
+    // ============================================================
+    const SOUND_OWNER = 'beastcooper', SOUND_REPO = 'Tacopanda_Arcade', SOUND_BRANCH = 'master';
+    const SOUND_BASE = `https://raw.githubusercontent.com/${SOUND_OWNER}/${SOUND_REPO}/${SOUND_BRANCH}/soundboard/`;
+    const SOUND_API = `https://api.github.com/repos/${SOUND_OWNER}/${SOUND_REPO}/contents/soundboard?ref=${SOUND_BRANCH}`;
+    const JSDELIVR_SOUND = `https://cdn.jsdelivr.net/gh/${SOUND_OWNER}/${SOUND_REPO}@${SOUND_BRANCH}/soundboard/`;
+
+    let sounds = {}, playingSound = null, soundsLoaded = false;
+
+    async function fetchSoundWithFallback(primaryUrl, fallbackUrl) {
+      try {
+        const r = await fetch(primaryUrl, { signal: AbortSignal.timeout(15000) });
+        if (r.ok) return r;
+      } catch (e) { console.warn('Primary sound fetch failed, trying fallback:', e.message); }
+      if (fallbackUrl) {
+        try {
+          const r = await fetch(fallbackUrl, { signal: AbortSignal.timeout(15000) });
+          if (r.ok) return r;
+        } catch (e) { console.warn('Fallback sound fetch also failed:', e.message); }
+      }
+      throw new Error('Unable to fetch from GitHub or fallback CDN');
+    }
+
+    async function loadSounds() {
+      if (soundsLoaded) return;
+      soundsLoaded = true;
+      try {
+        const r = await fetchSoundWithFallback(SOUND_API, SOUND_API);
+        const items = await r.json();
+        if (!Array.isArray(items)) throw new Error('Unexpected API response');
+        for (const item of items) {
+          if (item.type === 'file' && /\.mp3$/i.test(item.name)) {
+            const key = item.name.replace(/\.mp3$/i, '');
+            sounds[key] = { url: SOUND_BASE + item.name, fallbackUrl: JSDELIVR_SOUND + item.name };
+          }
+        }
+        updateSoundCounter();
+        renderSoundboard();
+        cacheSounds();
+      } catch (e) {
+        console.error('Failed to load sounds from API, trying manual list:', e);
+        await loadSoundsManual();
+      }
+    }
+
+    async function loadSoundsManual() {
+      const soundList = ['air_horn', 'bell', 'buzzer', 'cash_register', 'cheer', 'clap', 'ding', 'error', 'notification', 'success', 'tada', 'whistle'];
+      for (const name of soundList) {
+        sounds[name] = { url: SOUND_BASE + name + '.mp3', fallbackUrl: JSDELIVR_SOUND + name + '.mp3' };
+      }
+      updateSoundCounter();
+      renderSoundboard();
+      cacheSounds();
+    }
+
+    async function cacheSounds() {
+      for (const key of Object.keys(sounds)) {
+        try {
+          const r = await fetchSoundWithFallback(sounds[key].url, sounds[key].fallbackUrl);
+          const blob = await r.blob();
+          sounds[key].cachedBlob = blob;
+          sounds[key].objectUrl = URL.createObjectURL(blob);
+        } catch (e) { console.warn(`Failed to cache sound ${key}:`, e); }
+      }
+    }
+
+    function updateSoundCounter() {
+      const count = Object.keys(sounds).length;
+      document.getElementById('soundboard-count').textContent = `${count} sound${count !== 1 ? 's' : ''}`;
+    }
+
+    function renderSoundboard() {
+      const container = document.getElementById('soundboard-grid');
+      const empty = document.getElementById('soundboard-empty');
+      const keys = Object.keys(sounds);
+      if (keys.length === 0) { empty.textContent = 'No sounds found'; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      container.innerHTML = '';
+      keys.sort().forEach(key => {
+        const btn = document.createElement('button');
+        btn.className = 'sound-btn rounded-lg';
+        btn.textContent = key.replace(/_/g, ' ');
+        btn.onclick = () => playSound(key, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function playSound(key, btn) {
+      if (!sounds[key]) return;
+      if (playingSound) { playingSound.audio.pause(); playingSound.btn.classList.remove('playing'); }
+      try {
+        const audio = new Audio();
+        audio.src = sounds[key].objectUrl || (sounds[key].cachedBlob ? URL.createObjectURL(sounds[key].cachedBlob) : sounds[key].url);
+        audio.play();
+        btn.classList.add('playing');
+        playingSound = { audio, btn };
+        audio.onended = () => {
+          btn.classList.remove('playing');
+          if (playingSound && playingSound.btn === btn) playingSound = null;
+        };
+      } catch (e) { console.error('Failed to play sound:', e); }
+    }
+
+    function stopAllSounds() {
+      if (playingSound) {
+        playingSound.audio.pause();
+        playingSound.btn.classList.remove('playing');
+        playingSound = null;
+      }
+    }
+
+    document.getElementById('soundboard-stop-btn').addEventListener('click', stopAllSounds);
+
+    // Only stop sounds on Space when the soundboard page is actually open
+    // and the person isn't typing somewhere (e.g. the chat message box) —
+    // otherwise this would eat every space bar press on the whole site.
+    document.addEventListener('keydown', e => {
+      if (e.code !== 'Space') return;
+      const tag = document.activeElement && document.activeElement.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (document.getElementById('soundboard-page').classList.contains('hidden')) return;
+      e.preventDefault();
+      stopAllSounds();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initSplashScreen(); loadFavorites(); loadGames(); loadSounds();
+      document.getElementById("search").value = localStorage.getItem('gamesSearchQuery')||'';
+      if (localStorage.getItem('gamesCurrentTab')==='favorites') setTimeout(()=>switchTab('favorites'),3000);
+    });
+  </script>
+
+  <script>
+  // ============================================================
+  // TACOPANDA CHAT MODULE
+  // ============================================================
+  (function () {
+    const pb = new PocketBase('https://raskattack.com');
+    let allData = [];
+    let dataChangeCallbacks = [];
+
+    window.dataSdk = {
+      async init(handler) {
+        if (handler && handler.onDataChanged) {
+          dataChangeCallbacks.push(handler.onDataChanged.bind(handler));
+        }
+        await fetchAllData();
+        
+        // Listen for live updates!
+        pb.collection('app_data').subscribe('*', function (e) {
+            fetchAllData();
+        });
+        return { isOk: true };
+      },
+      async create(data) {
+        try {
+          const record = await pb.collection('app_data').create(data);
+          data.__backendId = record.id;
+          return { isOk: true };
+        } catch (e) { console.error('dataSdk.create failed:', e); return { isOk: false, error: e }; }
+      },
+      async update(data) {
+        try {
+          await pb.collection('app_data').update(data.__backendId, data);
+          return { isOk: true };
+        } catch (e) { console.error('dataSdk.update failed:', e); return { isOk: false, error: e }; }
+      },
+      async delete(data) {
+        try {
+          await pb.collection('app_data').delete(data.__backendId);
+          return { isOk: true };
+        } catch (e) { console.error('dataSdk.delete failed:', e); return { isOk: false, error: e }; }
+      }
+    };
+
+    async function fetchAllData() {
+      try {
+        const records = await pb.collection('app_data').getFullList({ sort: 'created' });
+        allData = records.map(record => {
+            record.__backendId = record.id;
+            if (record.approved === 'true' || record.approved === true) record.approved = true;
+            if (record.approved === 'false' || record.approved === false) record.approved = false;
+            return record;
+        });
+        dataChangeCallbacks.forEach(cb => cb(allData));
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay && !overlay.classList.contains('hidden')) overlay.classList.add('hidden');
+      } catch (e) { console.error("Fetch Error:", e); }
+    }
+
+    // ============================================================
+    // APPLICATION LOGIC
+    // ============================================================
+
+    let currentUser = null;
+    let userRole = 'chatter';
+    let currentRoom = 'main';
+    let isLoading = false;
+    let selectedBanUser = null;
+    let selectedBanDuration = 15;
+    let selectedRoomForInvite = null;
+    let selectedInviteUsers = new Set();
+    let reportingMessageId = null;
+    let reportingUsername = null;
+    let reportingContent = null;
+    let selectedReportId = null;
+    let bannedUntil = null;
+    let replyContext = null; // { id, username, content } for the message currently being replied to
+    let profileModalTargetUsername = null; // whose profile openProfileModal() is currently showing
+    let prevPendingAdminCount = 0; // used to detect NEW pending admin items for the toast alert
+
+    const badWords = ['hell','damn','crap','piss','ass','bastard','bitch','shit','fuck','dammit','asshole','jackass'];
+    function censorMessage(text) {
+      let censored = text;
+      badWords.forEach(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        censored = censored.replace(regex, '*'.repeat(word.length));
+      });
+      return censored;
+    }
+
+    const rooms = {
+      main: { id: 'main', name: 'Main', description: 'Primary Taco Lounge', emoji: '', isPrivate: false },
+      homework: { id: 'homework', name: 'Announcements', description: 'Tacopanda updates', emoji: '', isPrivate: false }
+    };
+
+    function hideAllPages() {
+      ['auth-screen','chat-screen','rooms-page','dashboard-page','account-page'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+    }
+
+    let chatOpenedThisSession = false;
+    window.tacoChatOpen = function () {
+      if (!currentUser) { enterGuestChat(); return; }
+      if (chatOpenedThisSession) return;
+      chatOpenedThisSession = true;
+      enterChat();
+    };
+
+    window.tacoChatShowAuth = function () {
+      hideAllPages();
+      showLoginScreen();
+    };
+
+    function enterGuestChat() {
+      hideAllPages();
+      currentRoom = 'main';
+      document.getElementById('room-title').textContent = 'Main channel';
+      document.getElementById('room-description').textContent = 'General Tacopanda chat';
+      document.getElementById('user-role-display').textContent = 'Viewing as a guest';
+      document.getElementById('chat-header-actions').classList.add('hidden');
+      document.getElementById('message-form').classList.add('hidden');
+      document.getElementById('guest-signin-prompt').classList.remove('hidden');
+      document.getElementById('guest-signin-prompt').classList.add('flex');
+      document.getElementById('messages-container').innerHTML = '';
+      renderMessages(allData);
+      document.getElementById('chat-screen').classList.remove('hidden');
+    }
+    document.getElementById('guest-signin-btn').addEventListener('click', () => window.tacoChatShowAuth());
+
+    function showLoginScreen() {
+      hideAllPages();
+      document.getElementById('auth-screen').classList.remove('hidden');
+      document.getElementById('login-username-input').value = '';
+      document.getElementById('login-tag-input').value = '';
+      document.getElementById('login-password-input').value = '';
+      document.getElementById('login-password-confirm').value = '';
+      document.getElementById('login-error').classList.add('hidden');
+      document.getElementById('login-tag-error').classList.add('hidden');
+    }
+
+    function setCookie(name, value, days = 30) {
+      const date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + date.toUTCString() + ';path=/';
+    }
+    function getCookie(name) {
+      const nameEQ = name + '=';
+      for (let cookie of document.cookie.split(';')) {
+        cookie = cookie.trim();
+        if (cookie.indexOf(nameEQ) === 0) return decodeURIComponent(cookie.substring(nameEQ.length));
+      }
+      return null;
+    }
+    function deleteCookie(name) {
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+    }
+
+    function switchToLoginForm() {
+      document.getElementById('create-account-form').classList.add('hidden');
+      document.getElementById('login-form').classList.remove('hidden');
+      document.getElementById('existing-username-input').value = '';
+      document.getElementById('existing-password-input').value = '';
+      document.getElementById('login-error-existing').classList.add('hidden');
+    }
+    function switchToCreateForm() {
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('create-account-form').classList.remove('hidden');
+      document.getElementById('login-username-input').value = '';
+      document.getElementById('login-password-input').value = '';
+      document.getElementById('login-password-confirm').value = '';
+      document.getElementById('login-error').classList.add('hidden');
+    }
+
+    function getAccountByUsername(username) {
+      return allData.find(d => d.type === 'account' && d.account_username === username);
+    }
+
+    function getAccountByTag(tag) {
+      const clean = (tag || '').replace(/^@/, '').toLowerCase();
+      return allData.find(d => d.type === 'account' && (d.account_tag || '').toLowerCase() === clean);
+    }
+
+    function simplePasswordHash(password, salt = '') {
+      let hash = 0;
+      const str = password + salt;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16);
+    }
+
+    async function verifyLogin(username, password) {
+      const account = getAccountByUsername(username);
+      if (!account) return { success: false, error: 'Username not found' };
+      const passwordHash = simplePasswordHash(password, account.account_password_salt);
+      if (passwordHash !== account.account_password_hash) return { success: false, error: 'Incorrect password' };
+      userRole = account.account_role || 'chatter';
+      return { success: true, account };
+    }
+
+    // Every record we create shares one flat schema (the whole app uses a
+    // single PocketBase collection, discriminated by "type"). This blank
+    // template keeps every create() call passing the SAME full set of
+    // fields, which is what the rest of the file already relies on.
+    function blankRecord() {
+      return {
+        content: '', role: '', room: '',
+        timestamp: new Date().toISOString(),
+        approved: false, ban_until: '', ban_reason: '',
+        room_id: '', room_name: '', room_description: '', room_owner: '', room_members: '',
+        reported_message_id: '', reported_by: '', report_reason: '',
+        mod_request_reason: '', unban_reason: '', reported_message: '', username: '',
+        account_username: '', account_password_hash: '', account_password_salt: '',
+        account_role: '', account_tag: '', account_bio: '', account_avatar: '',
+        account_social_youtube: '', account_social_twitch: '', account_social_x: '', account_social_other: '',
+        reply_to_id: '', reply_to_username: '', reply_to_content: '',
+        mention_to: '', mention_from: '', mention_content: '', mention_message_id: '',
+        friend_requester: '', friend_target: '', friend_status: '',
+        read: false
+      };
+    }
+
+    async function createNewAccount(username, password, tag) {
+      const salt = Math.random().toString(36).substring(2, 15);
+      const passwordHash = simplePasswordHash(password, salt);
+      return window.dataSdk.create({
+        ...blankRecord(),
+        type: 'account',
+        account_username: username,
+        account_password_hash: passwordHash,
+        account_password_salt: salt,
+        account_role: 'chatter',
+        account_tag: tag
+      });
+    }
+
+    function getRoleBadge(role) {
+      const badges = {
+        admin: '<span class="px-2 py-0.5 bg-amber-900/40 text-amber-300 text-xs rounded font-semibold border border-amber-600">Admin</span>',
+        mod: '<span class="px-2 py-0.5 bg-emerald-900/40 text-emerald-300 text-xs rounded font-semibold border border-emerald-600">Mod</span>',
+        chatter: '<span class="px-2 py-0.5 bg-gray-800 text-gray-300 text-xs rounded font-semibold border border-gray-600">User</span>'
+      };
+      return badges[role] || badges.chatter;
+    }
+
+    function getRoleBadgeText(role) {
+      const badges = { admin: 'Admin', mod: 'Mod', chatter: 'User' };
+      return badges[role] || 'Chatter';
+    }
+
+    // ============================================================
+    // BAN PERMISSIONS — who is allowed to ban whom, and who is allowed
+    // to permaban. Centralized here so every place that shows or
+    // enforces a ban action (Online list, Admin > Manage users, Report
+    // review) agrees with each other instead of duplicating the rule.
+    //   chatter -> can never ban
+    //   mod     -> can ban chatters only, never permanently
+    //   admin   -> can ban chatters and mods, never other admins;
+    //              only admins may choose a permanent ban
+    // ============================================================
+    function roleOf(username) {
+      const acc = getAccountByUsername(username);
+      return acc ? (acc.account_role || 'chatter') : 'chatter';
+    }
+    function canBanUser(targetUsername) {
+      if (!currentUser || targetUsername === currentUser) return false;
+      const targetRole = roleOf(targetUsername);
+      if (userRole === 'admin') return targetRole !== 'admin';
+      if (userRole === 'mod') return targetRole === 'chatter';
+      return false;
+    }
+    function canPermaban() { return userRole === 'admin'; }
+    const PERMANENT_BAN_UNTIL = '9999-12-31T00:00:00.000Z';
+
+    function formatTime(isoString) {
+      return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function generateRoomId() {
+      return 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function getRoomData(roomId) {
+      return allData.find(d => d.type === 'room' && d.room_id === roomId);
+    }
+
+    function checkBanStatus() {
+      if (!currentUser) return false;
+      const banRecord = allData.find(d =>
+        d.type === 'message' && d.ban_reason && d.ban_until && d.ban_until !== '' &&
+        new Date(d.ban_until) > new Date() && d.content && d.content.includes(currentUser)
+      );
+      if (banRecord) {
+        bannedUntil = new Date(banRecord.ban_until);
+        updateBanTimeRemaining();
+        document.getElementById('ban-reason-display').textContent = banRecord.ban_reason || 'No reason provided';
+        document.getElementById('unban-modal').classList.remove('hidden');
+        document.getElementById('chat-screen').classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    function enterChat() {
+      hideAllPages();
+      document.getElementById('chat-screen').classList.remove('hidden');
+      document.getElementById('chat-header-actions').classList.remove('hidden');
+      document.getElementById('message-form').classList.remove('hidden');
+      document.getElementById('guest-signin-prompt').classList.add('hidden');
+      document.getElementById('guest-signin-prompt').classList.remove('flex');
+      if (checkBanStatus()) return;
+      enterRoom('main');
+      updateRoleDisplay();
+      updateAdminButtonVisibility();
+    }
+
+    function updateAdminButtonVisibility() {
+      const btn = document.getElementById('admin-btn');
+      if (userRole === 'admin') btn.classList.remove('hidden');
+      else btn.classList.add('hidden');
+    }
+
+    function canAccessRoom(roomId) {
+      if (roomId === 'main' || roomId === 'homework') return true;
+      const room = getRoomData(roomId);
+      if (!room) return false;
+      if (userRole === 'admin') return true;
+      if (room.room_owner === currentUser) return true;
+      const members = room.room_members ? room.room_members.split(',').map(m => m.trim()) : [];
+      return members.includes(currentUser);
+    }
+
+    function canChatInRoom(roomId) {
+      if (roomId === 'main') return true;
+      if (roomId === 'homework') return userRole === 'admin';
+      const room = getRoomData(roomId);
+      if (!room) return false;
+      if (userRole === 'admin') return true;
+      if (room.room_owner === currentUser) return true;
+      const members = room.room_members ? room.room_members.split(',').map(m => m.trim()) : [];
+      return members.includes(currentUser);
+    }
+
+    function renderMessages(data) {
+      const messagesContainer = document.getElementById('messages-container');
+      const messages = data.filter(d => d.type === 'message' && d.room === currentRoom);
+      let allItems = [...messages];
+
+      const approvedMod = data.find(d => d.type === 'mod_request' && d.username === currentUser && d.approved);
+      if (approvedMod) {
+        allItems.push({
+          __backendId: `notif_mod_${approvedMod.__backendId}`,
+          type: 'notification', username: 'TacopandaBot',
+          content: 'Your moderator request was approved.',
+          role: 'system', room: currentRoom,
+          timestamp: new Date().toISOString(), isNotification: true, isPersonal: true
+        });
+      }
+
+      const approvedUnban = data.find(d => d.type === 'unban_request' && d.username === currentUser && d.approved);
+      if (approvedUnban) {
+        allItems.push({
+          __backendId: `notif_unban_${approvedUnban.__backendId}`,
+          type: 'notification', username: 'TacopandaBot',
+          content: '✓ YOUR UNBAN APPEAL WAS APPROVED! Welcome back.',
+          role: 'system', room: currentRoom,
+          timestamp: new Date().toISOString(), isNotification: true, isPersonal: true
+        });
+      }
+
+      if (userRole === 'admin' && currentRoom === 'main') {
+        data.filter(d => d.type === 'report').forEach(report => {
+          allItems.push({
+            __backendId: `notif_report_${report.__backendId}`,
+            type: 'notification', username: 'TacopandaBot',
+            content: `Report: ${report.reported_by} reported ${report.username} — "${report.report_reason}"`,
+            role: 'admin', room: currentRoom,
+            timestamp: report.timestamp, isNotification: true
+          });
+        });
+        data.filter(d => d.type === 'mod_request' && !d.approved).forEach(req => {
+          allItems.push({
+            __backendId: `notif_modreq_${req.__backendId}`,
+            type: 'notification', username: 'TacopandaBot',
+            content: `Moderator request from ${req.username}: "${req.mod_request_reason}"`,
+            role: 'admin', room: currentRoom,
+            timestamp: req.timestamp, isNotification: true
+          });
+        });
+        data.filter(d => d.type === 'unban_request').forEach(req => {
+          allItems.push({
+            __backendId: `notif_unbanreq_${req.__backendId}`,
+            type: 'notification', username: 'TacopandaBot',
+            content: `Unban appeal from ${req.username}: "${req.unban_reason}"`,
+            role: 'admin', room: currentRoom,
+            timestamp: req.timestamp, isNotification: true
+          });
+        });
+      }
+
+      allItems.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const existingIds = new Set([...messagesContainer.children].map(el => el.dataset.id));
+
+      allItems.forEach(msg => {
+        if (!existingIds.has(msg.__backendId)) {
+          const msgEl = document.createElement('div');
+          msgEl.dataset.id = msg.__backendId;
+          const isNotification = msg.isNotification;
+          const isPersonal = msg.isPersonal;
+          const bgClass = isNotification
+            ? (isPersonal ? 'bg-emerald-950/40 border border-emerald-700' : 'bg-amber-950/40 border border-amber-700')
+            : '';
+          const badgeColor = isPersonal ? 'bg-emerald-800 text-emerald-200' : 'bg-amber-800 text-amber-200';
+          const escapedContent = (msg.content || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+          const escapedUsername = (msg.username || '').replace(/'/g, '&#39;');
+
+          msgEl.innerHTML = `
+            <div class="flex justify-start">
+              ${!isNotification ? `<img src="${getAvatarUrl(msg.username)}" alt="" class="w-8 h-8 rounded-full object-cover bg-slate-800 border border-slate-700 shrink-0 cursor-pointer" onclick="openProfileModal('${escapedUsername}')">` : ''}
+              <div class="max-w-[85%] flat-panel rounded-lg px-4 py-3 group relative ${bgClass}">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-mono font-bold text-orange-400 text-sm ${!isNotification ? 'cursor-pointer hover:underline' : ''}" ${!isNotification ? `onclick="openProfileModal('${escapedUsername}')"` : ''}>${msg.username}</span>
+                  ${isNotification
+                    ? `<span class="px-2 py-0.5 ${badgeColor} text-xs rounded font-semibold">${isPersonal ? 'Update' : 'Alert'}</span>`
+                    : getRoleBadge(msg.role)}
+                  <span class="text-gray-500 text-xs font-mono">${formatTime(msg.timestamp)}</span>
+                </div>
+                ${msg.reply_to_id ? `<div class="mb-1.5 pl-2 border-l-2 border-slate-600 text-xs text-slate-400 truncate"><span class="font-semibold text-slate-300">${msg.reply_to_username || 'someone'}</span>: ${(msg.reply_to_content || '').slice(0, 80)}</div>` : ''}
+                <p class="text-gray-200 font-mono text-sm">${highlightMentions(censorMessage(msg.content || ''))}</p>
+                ${!isNotification ? `<div class="absolute -right-[74px] top-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+                  <button class="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded"
+                    onclick="startReply('${msg.__backendId}', '${escapedUsername}', '${escapedContent}')">Reply</button>
+                  <button class="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded"
+                    onclick="openReportModal('${msg.__backendId}', '${escapedUsername}', '${escapedContent}')">Report</button>
+                </div>` : ''}
+              </div>
+            </div>`;
+          messagesContainer.appendChild(msgEl);
+        }
+      });
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Resolves a display avatar for a username, falling back to a generated
+    // placeholder if they haven't set one. account_avatar is a small resized
+    // image stored directly as a data: URL in a plain text field — this is
+    // the primary path and needs no special server setup, unlike file
+    // uploads (see the note above uploadAvatar()). avatar_file is only kept
+    // as a fallback in case a PocketBase file field was already added.
+    function getAvatarUrl(username) {
+      const acc = getAccountByUsername(username);
+      if (acc && acc.account_avatar) return acc.account_avatar;
+      if (acc && acc.avatar_file) return pb.getFileUrl(acc, acc.avatar_file);
+      return `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(username || 'guest')}`;
+    }
+
+    // Wraps @tag occurrences in a message with a highlighted span so
+    // mentions are visually distinct in the chat log.
+    function highlightMentions(html) {
+      return html.replace(/(^|\s)@(\w{2,20})/g, (full, pre, tag) => {
+        const acc = getAccountByTag(tag);
+        if (!acc) return full;
+        return `${pre}<span class="text-orange-400 font-semibold cursor-pointer hover:underline" onclick="openProfileModal('${acc.account_username.replace(/'/g, "&#39;")}')">@${tag}</span>`;
+      });
+    }
+
+    function renderPrivateRooms(data) {
+      const list = document.getElementById('private-rooms-list');
+      const userRooms = data.filter(d =>
+        d.type === 'room' && (d.room_owner === currentUser || (d.room_members && d.room_members.includes(currentUser)))
+      );
+      if (userRooms.length === 0) {
+        list.innerHTML = '<p class="text-gray-500 text-sm py-4 text-center font-mono">NO PRIVATE CHANNELS</p>';
+      } else {
+        list.innerHTML = userRooms.map(room => {
+          const memberCount = room.room_members ? room.room_members.split(',').length + 1 : 1;
+          const isOwner = room.room_owner === currentUser;
+          return `
+            <div class="flat-panel rounded-lg transition-all p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex-1">
+                  <h3 class="font-bold text-orange-400 text-base">${room.room_name} <span class="text-xs text-gray-400 font-normal">(private)</span></h3>
+                  <p class="text-gray-400 text-xs font-mono">${room.room_description || 'Private channel'}</p>
+                  <p class="text-gray-500 text-xs mt-1">${memberCount} members &middot; ${isOwner ? 'Owner' : 'Member'}</p>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-2">
+                <button onclick="enterRoom('${room.room_id}')" class="flex-1 py-1.5 flat-button text-xs rounded font-mono font-bold uppercase">ENTER</button>
+                ${isOwner ? `
+                  <button onclick="openInviteModal('${room.room_id}', '${room.room_name.replace(/'/g,'&#39;')}')" class="flex-1 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded transition-colors font-mono font-bold">INVITE</button>
+                  <button onclick="deleteRoom('${room.room_id}')" class="py-1.5 px-3 bg-red-900/60 hover:bg-red-800/80 text-red-200 text-xs rounded transition-colors font-mono font-bold">DEL</button>
+                ` : ''}
+              </div>
+            </div>`;
+        }).join('');
+      }
+    }
+
+    function renderDashboard(data) {
+      const list = document.getElementById('dashboard-users-list');
+      const messages = data.filter(d => d.type === 'message' && d.room === currentRoom);
+      const uniqueUsers = new Map();
+      messages.forEach(msg => { if (!uniqueUsers.has(msg.username)) uniqueUsers.set(msg.username, msg.role); });
+      if (currentUser && !uniqueUsers.has(currentUser)) uniqueUsers.set(currentUser, userRole);
+
+      if (uniqueUsers.size === 0) {
+        list.innerHTML = '<p class="text-gray-500 text-center py-8 font-mono">NO ACTIVE USERS</p>';
+      } else {
+        list.innerHTML = [...uniqueUsers.entries()].map(([username, role]) => {
+          return `
+            <div class="flat-panel rounded-lg p-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img src="${getAvatarUrl(username)}" alt="" class="w-8 h-8 rounded-full object-cover bg-slate-800 border border-slate-700 cursor-pointer" onclick="openProfileModal('${username.replace(/'/g, "&#39;")}')">
+                <span class="text-gray-200 text-sm font-mono font-bold cursor-pointer hover:underline" onclick="openProfileModal('${username.replace(/'/g, "&#39;")}')">${username}</span>
+                ${getRoleBadge(role)}
+              </div>
+              ${canBanUser(username) ? `<button onclick="openBanModal('${username}')" class="text-red-400 hover:text-red-300 text-xs font-mono font-bold">BAN</button>` : ''}
+            </div>`;
+        }).join('');
+      }
+    }
+
+    function renderAdminPanel(data) {
+      if (userRole !== 'admin') return;
+
+      const reports = data.filter(d => d.type === 'report');
+      document.getElementById('admin-reported-messages').innerHTML = reports.length === 0
+        ? '<p class="text-gray-500 text-center py-2 font-mono text-sm">NO REPORTS</p>'
+        : reports.map(r => `
+            <div class="flat-panel rounded-lg p-3">
+              <p class="text-orange-400 text-xs font-mono font-bold">FROM: ${r.reported_by}</p>
+              <p class="text-gray-400 text-xs mt-1 font-mono">REPORTED: <span class="text-gray-200">${r.username}</span></p>
+              <p class="text-red-400 text-xs mt-1 italic font-mono">REASON: ${r.report_reason}</p>
+              <p class="text-gray-300 text-xs mt-2 bg-gray-900 p-2 rounded">"${r.reported_message || '(message deleted)'}"</p>
+              <div class="flex gap-2 mt-2">
+                <button onclick="dismissReport('${r.__backendId}')" class="flex-1 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded transition-colors font-mono font-bold">DISMISS</button>
+                ${canBanUser(r.username) ? `<button onclick="openBanModalFromReport('${r.__backendId}','${r.username}')" class="flex-1 py-1 flat-button text-xs rounded uppercase font-mono font-bold">BAN</button>` : ''}
+              </div>
+            </div>`).join('');
+
+      const pending = data.filter(d => d.type === 'mod_request' && !d.approved);
+      document.getElementById('admin-pending-requests').innerHTML = pending.length === 0
+        ? '<p class="text-gray-500 text-center py-2 font-mono text-sm">NO REQUESTS</p>'
+        : pending.map(req => `
+            <div class="flat-panel rounded-lg p-3">
+              <p class="text-orange-400 text-xs font-mono font-bold">${req.username}</p>
+              <p class="text-gray-400 text-xs mt-1 italic font-mono">REASON: ${req.mod_request_reason}</p>
+              <div class="flex gap-2 mt-2">
+                <button onclick="approveMod('${req.__backendId}','${req.username}')" class="flex-1 py-1 bg-emerald-900/60 hover:bg-emerald-800/80 text-emerald-200 text-xs rounded transition-colors font-mono font-bold">APPROVE</button>
+                <button onclick="denyMod('${req.__backendId}')" class="flex-1 py-1 bg-red-900/60 hover:bg-red-800/80 text-red-200 text-xs rounded transition-colors font-mono font-bold">DENY</button>
+              </div>
+            </div>`).join('');
+
+      const approved = data.filter(d => d.type === 'mod_request' && d.approved);
+      document.getElementById('admin-approved-mods').innerHTML = approved.length === 0
+        ? '<p class="text-gray-500 text-center py-2 font-mono text-sm">NONE</p>'
+        : approved.map(m => `
+            <div class="flat-panel rounded-lg p-2 flex items-center justify-between">
+              <span class="text-gray-200 text-xs font-semibold">${m.username}</span>
+              <button onclick="revokeMod('${m.__backendId}')" class="text-red-400 hover:text-red-300 text-xs font-mono font-bold">REVOKE</button>
+            </div>`).join('');
+
+      // Unban requests: shown ONLY here (in the admin panel), and each one
+      // now includes the user's recent message history so the admin has
+      // context for the decision instead of just the appeal text.
+      const unbanReqs = data.filter(d => d.type === 'unban_request');
+      document.getElementById('admin-unban-requests').innerHTML = unbanReqs.length === 0
+        ? '<p class="text-gray-500 text-center py-2 font-mono text-sm">NO REQUESTS</p>'
+        : unbanReqs.map(req => {
+            const recentMessages = data.filter(d => d.type === 'message' && d.username === req.username)
+              .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+              .slice(0, 5)
+              .reverse();
+            const historyHtml = recentMessages.length === 0
+              ? '<p class="text-gray-500 text-xs italic">No message history</p>'
+              : recentMessages.map(m => `<p class="text-gray-300 text-xs"><span class="text-gray-500">${formatTime(m.timestamp)}</span> ${(m.content || '').replace(/</g,'&lt;')}</p>`).join('');
+            return `
+            <div class="flat-panel rounded-lg p-3">
+              <p class="text-orange-400 text-xs font-mono font-bold">${req.username}</p>
+              <p class="text-gray-400 text-xs mt-1 italic font-mono">REASON: ${req.unban_reason}</p>
+              <div class="mt-2 bg-gray-900 rounded p-2 space-y-1 max-h-32 overflow-y-auto chat-scroll">
+                <p class="text-gray-500 text-xs font-semibold mb-1">Recent messages:</p>
+                ${historyHtml}
+              </div>
+              <div class="flex gap-2 mt-2">
+                <button onclick="approveUnban('${req.__backendId}','${req.username}')" class="flex-1 py-1 bg-emerald-900/60 hover:bg-emerald-800/80 text-emerald-200 text-xs rounded transition-colors font-mono font-bold">APPROVE</button>
+                <button onclick="denyUnban('${req.__backendId}')" class="flex-1 py-1 bg-red-900/60 hover:bg-red-800/80 text-red-200 text-xs rounded transition-colors font-mono font-bold">DENY</button>
+              </div>
+            </div>`;
+          }).join('');
+
+      const accounts = data.filter(d => d.type === 'account' && d.account_username !== currentUser);
+      document.getElementById('admin-bannable-users').innerHTML = accounts.length === 0
+        ? '<p class="text-gray-500 text-center py-2 font-mono text-sm">NO USERS</p>'
+        : accounts.map(acc => {
+            const username = acc.account_username;
+            const role = acc.account_role || 'chatter';
+            return `
+            <div class="flat-panel rounded-lg p-2 flex items-center justify-between">
+              <span class="text-gray-200 text-xs font-semibold cursor-pointer hover:underline" onclick="openProfileModal('${username.replace(/'/g, "&#39;")}')">${username}${role === 'mod' ? ' (mod)' : (role === 'admin' ? ' (admin)' : '')}</span>
+              <div class="flex gap-1">
+                ${role === 'mod'
+                  ? `<button onclick="unmodUser('${username}')" class="text-red-400 hover:text-red-300 text-xs font-mono font-bold px-2 py-1 bg-red-950/40 rounded">UNMOD</button>`
+                  : (role !== 'admin' ? `<button onclick="modUser('${username}')" class="text-emerald-400 hover:text-emerald-300 text-xs font-mono font-bold px-2 py-1 bg-emerald-950/40 rounded">MOD</button>` : '')}
+                ${canBanUser(username) ? `<button onclick="openBanModal('${username}')" class="text-amber-400 hover:text-amber-300 text-xs font-mono font-bold px-2 py-1 bg-amber-950/40 rounded">BAN</button>` : ''}
+              </div>
+            </div>`;
+          }).join('');
+    }
+
+    function checkUserRole(data) {
+      const account = data.find(d => d.type === 'account' && d.account_username === currentUser);
+      if (account && account.account_role) userRole = account.account_role;
+      updateRoleDisplay();
+      updateAdminButtonVisibility();
+    }
+
+    function updateRoleDisplay() {
+      const labels = { admin: 'Admin mode', mod: 'Moderator', chatter: 'Chatter' };
+      document.getElementById('user-role-display').textContent = `${currentUser} · ${labels[userRole] || 'Chatter'}`;
+    }
+
+    // ============================================================
+    // NOTIFICATIONS (mentions + incoming friend requests) & badges
+    // ============================================================
+    async function markNotificationRead(backendId) {
+      const record = allData.find(d => d.__backendId === backendId && d.type === 'mention');
+      if (!record || record.read) return;
+      record.read = true;
+      await window.dataSdk.update(record);
+    }
+
+    function renderFriendsAndRequests(data) {
+      if (!currentUser) return;
+
+      // --- Incoming (unanswered) friend requests, for the Notifications modal ---
+      const incoming = data.filter(d => d.type === 'friend' && d.friend_status === 'pending' && d.friend_target === currentUser);
+      const friendReqEl = document.getElementById('notifications-friend-requests');
+      if (friendReqEl) {
+        friendReqEl.innerHTML = incoming.length === 0
+          ? '<p class="text-slate-500 text-center py-2 text-sm">No pending requests</p>'
+          : incoming.map(r => `
+              <div class="flat-panel rounded-lg p-3 flex items-center justify-between gap-2">
+                <span class="text-gray-200 text-sm font-mono font-bold cursor-pointer hover:underline" onclick="openProfileModal('${r.friend_requester.replace(/'/g, "&#39;")}')">${r.friend_requester}</span>
+                <div class="flex gap-2 shrink-0">
+                  <button onclick="acceptFriendRequest('${r.__backendId}')" class="px-3 py-1 bg-emerald-900/60 hover:bg-emerald-800/80 text-emerald-200 text-xs rounded font-semibold">Accept</button>
+                  <button onclick="declineFriendRequest('${r.__backendId}')" class="px-3 py-1 bg-red-900/60 hover:bg-red-800/80 text-red-200 text-xs rounded font-semibold">Decline</button>
+                </div>
+              </div>`).join('');
+      }
+
+      // --- Mentions, for the Notifications modal ---
+      const mentions = data.filter(d => d.type === 'mention' && d.mention_to === currentUser)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const mentionsEl = document.getElementById('notifications-mentions');
+      if (mentionsEl) {
+        mentionsEl.innerHTML = mentions.length === 0
+          ? '<p class="text-slate-500 text-center py-2 text-sm">No mentions yet</p>'
+          : mentions.map(m => `
+              <div class="flat-panel rounded-lg p-3 ${m.read ? '' : 'border border-orange-500/50'}">
+                <p class="text-xs text-slate-400 font-mono"><span class="text-orange-400 font-bold">${m.mention_from}</span> mentioned you</p>
+                <p class="text-gray-300 text-sm mt-1">${(m.mention_content || '').replace(/</g,'&lt;')}</p>
+              </div>`).join('');
+        // Mark all visible mentions read once the panel is actually open.
+        if (!document.getElementById('notifications-modal').classList.contains('hidden')) {
+          mentions.filter(m => !m.read).forEach(m => markNotificationRead(m.__backendId));
+        }
+      }
+
+      // --- Notifications bell badge = unread mentions + incoming friend requests ---
+      const unreadCount = mentions.filter(m => !m.read).length + incoming.length;
+      const badge = document.getElementById('notifications-badge');
+      if (badge) {
+        if (unreadCount > 0) { badge.textContent = unreadCount > 99 ? '99+' : unreadCount; badge.classList.remove('hidden'); }
+        else badge.classList.add('hidden');
+      }
+
+      // --- Friends list + friend search box, in the Profile page ---
+      const friendsListEl = document.getElementById('account-page-friends-list');
+      if (friendsListEl) {
+        const friendRecords = getFriendsOf(currentUser);
+        friendsListEl.innerHTML = friendRecords.length === 0
+          ? '<p class="text-slate-500 text-sm py-2 text-center">No friends yet</p>'
+          : friendRecords.map(r => {
+              const other = friendUsernameFromRecord(r, currentUser);
+              return `
+                <div class="flat-panel rounded-lg p-2 flex items-center justify-between">
+                  <span class="text-gray-200 text-sm font-mono cursor-pointer hover:underline" onclick="openProfileModal('${other.replace(/'/g, "&#39;")}')">${other}</span>
+                  <button onclick="removeFriend('${r.__backendId}')" class="text-red-400 hover:text-red-300 text-xs font-semibold">Remove</button>
+                </div>`;
+            }).join('');
+      }
+
+      // --- Admin badge = pending reports + mod requests + unban requests; also
+      // toasts the admin once when a NEW item shows up (this is the "mod
+      // requests go straight to the admin" alert). ---
+      if (userRole === 'admin') {
+        const pendingReports = data.filter(d => d.type === 'report').length;
+        const pendingMods = data.filter(d => d.type === 'mod_request' && !d.approved).length;
+        const pendingUnbans = data.filter(d => d.type === 'unban_request').length;
+        const totalPending = pendingReports + pendingMods + pendingUnbans;
+        const adminBadge = document.getElementById('admin-badge');
+        if (adminBadge) {
+          if (totalPending > 0) { adminBadge.textContent = totalPending > 99 ? '99+' : totalPending; adminBadge.classList.remove('hidden'); }
+          else adminBadge.classList.add('hidden');
+        }
+        if (totalPending > prevPendingAdminCount) showToast('New item needs admin attention');
+        prevPendingAdminCount = totalPending;
+      }
+    }
+
+    function updateRoomCounts() {
+      ['main', 'homework'].forEach(roomId => {
+        const msgs = allData.filter(d => d.type === 'message' && d.room === roomId);
+        const count = new Set(msgs.map(m => m.username)).size;
+        const el = document.getElementById(`${roomId}-room-count-page`);
+        if (el) el.textContent = count;
+      });
+    }
+
+    function enterRoom(roomId) {
+      if (!canAccessRoom(roomId)) { showToast('Access denied'); return; }
+      currentRoom = roomId;
+      cancelReply(); // a reply drafted in one room shouldn't get attached to a message in a different room
+      if (rooms[roomId]) {
+        document.getElementById('room-title').textContent = rooms[roomId].name;
+        document.getElementById('room-description').textContent = rooms[roomId].description;
+      } else {
+        const room = getRoomData(roomId);
+        if (room) {
+          document.getElementById('room-title').textContent = `${room.room_name} (private)`;
+          document.getElementById('room-description').textContent = room.room_description || 'Private channel';
+        }
+      }
+      document.getElementById('messages-container').innerHTML = '';
+      hideAllPages();
+      document.getElementById('chat-screen').classList.remove('hidden');
+      renderMessages(allData);
+      const input = document.getElementById('message-input');
+      if (!canChatInRoom(roomId)) {
+        input.disabled = true;
+        input.placeholder = 'Read only';
+      } else {
+        input.disabled = false;
+        input.placeholder = 'Type message...';
+      }
+      input.focus();
+    }
+
+    function startReply(messageId, username, content) {
+      replyContext = { id: messageId, username, content };
+      document.getElementById('reply-banner-username').textContent = username;
+      document.getElementById('reply-banner-content').textContent = content.length > 60 ? content.slice(0, 60) + '…' : content;
+      const banner = document.getElementById('reply-banner');
+      banner.classList.remove('hidden');
+      banner.classList.add('flex');
+      document.getElementById('message-input').focus();
+    }
+
+    function cancelReply() {
+      replyContext = null;
+      const banner = document.getElementById('reply-banner');
+      banner.classList.add('hidden');
+      banner.classList.remove('flex');
+    }
+
+    function openReportModal(messageId, username, content) {
+      reportingMessageId = messageId;
+      reportingUsername = username;
+      reportingContent = content;
+      document.getElementById('report-username').textContent = username;
+      document.getElementById('report-content').textContent = content;
+      document.getElementById('report-reason-input').value = '';
+      document.getElementById('report-modal').classList.remove('hidden');
+    }
+
+    // Configures the ban modal for the current viewer's permission level:
+    // mods only ever see a timed ban (max 60 minutes, no permanent
+    // option); admins additionally see a "Permanent ban" checkbox that,
+    // when checked, disables the duration slider entirely.
+    function configureBanModalPermissions() {
+      const permRow = document.getElementById('ban-permanent-row');
+      const checkbox = document.getElementById('ban-permanent-checkbox');
+      checkbox.checked = false;
+      if (canPermaban()) {
+        permRow.classList.remove('hidden');
+        permRow.classList.add('flex');
+      } else {
+        permRow.classList.add('hidden');
+        permRow.classList.remove('flex');
+      }
+      document.getElementById('ban-duration-section').classList.remove('hidden');
+      document.getElementById('ban-duration-slider').disabled = false;
+    }
+
+    function openBanModal(username) {
+      if (!canBanUser(username)) { showToast('You cannot ban this user'); return; }
+      selectedBanUser = username;
+      selectedBanDuration = 15;
+      selectedReportId = null;
+      document.getElementById('ban-modal-username').textContent = username;
+      document.getElementById('ban-duration-slider').value = 15;
+      document.getElementById('ban-duration-display').textContent = '15 MINUTES';
+      document.getElementById('ban-reason-input').value = '';
+      document.getElementById('ban-reason-error').classList.add('hidden');
+      configureBanModalPermissions();
+      document.getElementById('ban-modal').classList.remove('hidden');
+    }
+
+    function openBanModalFromReport(reportId, username) {
+      if (!canBanUser(username)) { showToast('You cannot ban this user'); return; }
+      selectedBanUser = username;
+      selectedBanDuration = 15;
+      selectedReportId = reportId;
+      document.getElementById('ban-modal-username').textContent = username;
+      document.getElementById('ban-duration-slider').value = 15;
+      document.getElementById('ban-duration-display').textContent = '15 MINUTES';
+      configureBanModalPermissions();
+      document.getElementById('ban-modal').classList.remove('hidden');
+    }
+
+    document.getElementById('ban-permanent-checkbox').addEventListener('change', e => {
+      const isPermanent = e.target.checked;
+      document.getElementById('ban-duration-slider').disabled = isPermanent;
+      document.getElementById('ban-duration-section').style.opacity = isPermanent ? '0.4' : '1';
+    });
+
+    function openInviteModal(roomId, roomName) {
+      selectedRoomForInvite = roomId;
+      selectedInviteUsers.clear();
+      document.getElementById('invite-room-name').textContent = roomName;
+      document.getElementById('invite-search-input').value = '';
+      document.getElementById('invite-selected-count').textContent = '0';
+      document.getElementById('invite-selected-list').innerHTML = '';
+      document.getElementById('invite-room-modal').classList.remove('hidden');
+      renderInviteUsersList('');
+    }
+
+    function getAllUsers() {
+      const accounts = allData.filter(d => d.type === 'account' && d.account_username !== currentUser);
+      return accounts.map(acc => ({ username: acc.account_username, role: acc.account_role || 'chatter' }));
+    }
+
+    // ============================================================
+    // FRIENDS
+    // ============================================================
+    function getFriendRecord(userA, userB) {
+      return allData.find(d => d.type === 'friend' &&
+        ((d.friend_requester === userA && d.friend_target === userB) ||
+         (d.friend_requester === userB && d.friend_target === userA)));
+    }
+    function getFriendsOf(username) {
+      return allData.filter(d => d.type === 'friend' && d.friend_status === 'accepted' &&
+        (d.friend_requester === username || d.friend_target === username));
+    }
+    function friendUsernameFromRecord(record, viewer) {
+      return record.friend_requester === viewer ? record.friend_target : record.friend_requester;
+    }
+
+    async function sendFriendRequest(targetUsername) {
+      if (!currentUser || targetUsername === currentUser) return;
+      if (getFriendRecord(currentUser, targetUsername)) { showToast('Already connected or pending'); return; }
+      const result = await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'friend', friend_requester: currentUser, friend_target: targetUsername,
+        friend_status: 'pending', timestamp: new Date().toISOString()
+      });
+      if (result.isOk) { showToast(`Friend request sent to ${targetUsername}`); refreshProfileModalIfOpen(); renderFriendsAndRequests(allData); }
+    }
+
+    async function acceptFriendRequest(backendId) {
+      const record = allData.find(d => d.__backendId === backendId && d.type === 'friend');
+      if (!record) return;
+      record.friend_status = 'accepted';
+      const result = await window.dataSdk.update(record);
+      if (result.isOk) { showToast('Friend request accepted'); refreshProfileModalIfOpen(); renderFriendsAndRequests(allData); }
+    }
+
+    async function declineFriendRequest(backendId) {
+      const record = allData.find(d => d.__backendId === backendId && d.type === 'friend');
+      if (!record) return;
+      const result = await window.dataSdk.delete(record);
+      if (result.isOk) { showToast('Friend request declined'); renderFriendsAndRequests(allData); }
+    }
+
+    async function removeFriend(backendId) {
+      const record = allData.find(d => d.__backendId === backendId && d.type === 'friend');
+      if (!record) return;
+      const result = await window.dataSdk.delete(record);
+      if (result.isOk) { showToast('Friend removed'); refreshProfileModalIfOpen(); renderFriendsAndRequests(allData); }
+    }
+
+    // ============================================================
+    // PROFILE VIEW MODAL (view-only — no password/hash/salt/etc shown)
+    // ============================================================
+    function openProfileModal(username) {
+      const acc = getAccountByUsername(username);
+      if (!acc) { showToast('User not found'); return; }
+      profileModalTargetUsername = username;
+      document.getElementById('profile-view-avatar').src = getAvatarUrl(username);
+      document.getElementById('profile-view-username').textContent = username;
+      document.getElementById('profile-view-tag').textContent = acc.account_tag ? `@${acc.account_tag}` : '';
+      document.getElementById('profile-view-role').innerHTML = getRoleBadge(acc.account_role || 'chatter');
+      document.getElementById('profile-view-bio').textContent = acc.account_bio || '';
+
+      const socials = [
+        { label: 'YouTube', url: acc.account_social_youtube },
+        { label: 'Twitch', url: acc.account_social_twitch },
+        { label: 'X / Twitter', url: acc.account_social_x },
+        { label: 'Other', url: acc.account_social_other }
+      ].filter(s => s.url);
+      const socialsEl = document.getElementById('profile-view-socials');
+      socialsEl.innerHTML = socials.length === 0
+        ? '<p class="text-slate-500 text-xs text-center">No social links added</p>'
+        : socials.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="block px-3 py-2 flat-panel rounded-lg text-sm text-orange-400 hover:text-orange-300 truncate">${s.label}: ${s.url}</a>`).join('');
+
+      const friendBtn = document.getElementById('profile-view-friend-btn');
+      if (username === currentUser) {
+        friendBtn.textContent = 'This is you';
+        friendBtn.disabled = true;
+        friendBtn.onclick = null;
+      } else {
+        friendBtn.disabled = false;
+        const record = getFriendRecord(currentUser, username);
+        if (!record) {
+          friendBtn.textContent = 'Add Friend';
+          friendBtn.onclick = () => sendFriendRequest(username);
+        } else if (record.friend_status === 'accepted') {
+          friendBtn.textContent = 'Remove Friend';
+          friendBtn.onclick = () => removeFriend(record.__backendId);
+        } else if (record.friend_requester === currentUser) {
+          friendBtn.textContent = 'Request Sent';
+          friendBtn.disabled = true;
+          friendBtn.onclick = null;
+        } else {
+          friendBtn.textContent = 'Accept Request';
+          friendBtn.onclick = () => acceptFriendRequest(record.__backendId);
+        }
+      }
+      document.getElementById('profile-view-modal').classList.remove('hidden');
+    }
+    function refreshProfileModalIfOpen() {
+      if (profileModalTargetUsername && !document.getElementById('profile-view-modal').classList.contains('hidden')) {
+        openProfileModal(profileModalTargetUsername);
+      }
+    }
+
+    function renderInviteUsersList(searchTerm) {
+      const room = getRoomData(selectedRoomForInvite);
+      const currentMembers = room && room.room_members ? room.room_members.split(',').map(m => m.trim()) : [];
+      const filtered = getAllUsers().filter(u =>
+        u.username.toLowerCase().includes(searchTerm.toLowerCase()) && !currentMembers.includes(u.username)
+      );
+      const list = document.getElementById('invite-users-list');
+      list.innerHTML = filtered.length === 0
+        ? '<p class="text-gray-500 text-xs text-center py-4 font-mono">NO RESULTS</p>'
+        : filtered.map(user => {
+            const selected = selectedInviteUsers.has(user.username);
+            return `
+              <button type="button" onclick="toggleInviteUser('${user.username}')"
+                class="w-full text-left p-2 rounded transition-colors ${selected ? 'flat-panel' : 'bg-gray-800/40 hover:bg-gray-700/40'}">
+                <div class="flex items-center gap-3">
+                  <div class="w-4 h-4 rounded border ${selected ? 'bg-orange-500 border-orange-400' : 'border-gray-500'} flex items-center justify-center">
+                    ${selected ? '<span class="text-black text-xs font-bold">✓</span>' : ''}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-200 text-xs font-mono font-bold truncate">${user.username}</p>
+                    <p class="text-gray-500 text-xs font-mono">${getRoleBadgeText(user.role)}</p>
+                  </div>
+                </div>
+              </button>`;
+          }).join('');
+    }
+
+    function toggleInviteUser(username) {
+      if (selectedInviteUsers.has(username)) selectedInviteUsers.delete(username);
+      else selectedInviteUsers.add(username);
+      updateInviteSelectedDisplay();
+      renderInviteUsersList(document.getElementById('invite-search-input').value);
+    }
+
+    function updateInviteSelectedDisplay() {
+      document.getElementById('invite-selected-count').textContent = selectedInviteUsers.size;
+      document.getElementById('invite-selected-list').innerHTML = [...selectedInviteUsers].map(u =>
+        `<button type="button" onclick="toggleInviteUser('${u}')" class="px-2 py-0.5 flat-button text-xs rounded-full flex items-center gap-1 font-mono font-bold">${u} <span>✕</span></button>`
+      ).join('');
+    }
+
+    function updateBanTimeRemaining() {
+      if (!bannedUntil) return;
+      const timeLeft = Math.max(0, bannedUntil - new Date());
+      const minutes = Math.floor(timeLeft / 60000);
+      const seconds = Math.floor((timeLeft % 60000) / 1000);
+      const el = document.querySelector('#ban-time-remaining span');
+      if (el) el.textContent = minutes > 0 ? `${minutes}M ${seconds}S` : `${seconds}S`;
+    }
+
+    // ---- Async Actions ----
+    async function createRoom() {
+      const name = document.getElementById('room-name-input').value.trim();
+      const description = document.getElementById('room-description-input').value.trim();
+      if (!name || name.length < 2) { showToast('Channel name is too short'); return; }
+      const roomId = generateRoomId();
+      const result = await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'room', room_id: roomId, room_name: name, room_description: description,
+        room_owner: currentUser, room_members: '', username: '', content: '', role: '',
+        timestamp: new Date().toISOString(), approved: false, ban_until: '', ban_reason: '',
+        reported_message_id: '', reported_by: '', report_reason: '',
+        mod_request_reason: '', unban_reason: '', account_username: '',
+        account_password_hash: '', account_password_salt: '', account_role: '', reported_message: ''
+      });
+      if (result.isOk) {
+        showToast(`CHANNEL "${name}" CREATED`);
+        document.getElementById('room-name-input').value = '';
+        document.getElementById('room-description-input').value = '';
+        document.getElementById('create-room-modal').classList.add('hidden');
+      }
+    }
+
+    async function deleteRoom(roomId) {
+      const room = getRoomData(roomId);
+      if (!room || room.room_owner !== currentUser) { showToast('Cannot delete this channel'); return; }
+      const result = await window.dataSdk.delete(room);
+      if (result.isOk) showToast('Channel deleted');
+    }
+
+    async function inviteUsersToRoom() {
+      if (selectedInviteUsers.size === 0) { showToast('Select at least one user'); return; }
+      const room = getRoomData(selectedRoomForInvite);
+      if (!room || room.room_owner !== currentUser) { showToast('Cannot invite that user'); return; }
+      const currentMembers = room.room_members ? room.room_members.split(',').map(m => m.trim()) : [];
+      room.room_members = [...new Set([...currentMembers, ...selectedInviteUsers])].join(',');
+      const result = await window.dataSdk.update(room);
+      if (result.isOk) {
+        showToast(`INVITES SENT: ${selectedInviteUsers.size}`);
+        document.getElementById('invite-room-modal').classList.add('hidden');
+        selectedInviteUsers.clear();
+      }
+    }
+
+    async function submitReport() {
+      const reason = document.getElementById('report-reason-input').value.trim();
+      if (!reason || reason.length < 3) { showToast('Enter a reason'); return; }
+      const result = await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'report', reported_message_id: reportingMessageId, reported_by: currentUser,
+        username: reportingUsername, reported_message: reportingContent, report_reason: reason,
+        content: '', role: '', room: '', timestamp: new Date().toISOString(), approved: false,
+        ban_until: '', ban_reason: '', room_id: '', room_name: '', room_description: '',
+        room_owner: '', room_members: '', mod_request_reason: '', unban_reason: '',
+        account_username: '', account_password_hash: '', account_password_salt: '', account_role: ''
+      });
+      if (result.isOk) { showToast('Report submitted'); document.getElementById('report-modal').classList.add('hidden'); }
+    }
+
+    async function dismissReport(reportId) {
+      const report = allData.find(d => d.__backendId === reportId && d.type === 'report');
+      if (report) {
+        const result = await window.dataSdk.delete(report);
+        if (result.isOk) showToast('Report dismissed');
+      }
+    }
+
+    async function banUser() {
+      if (!canBanUser(selectedBanUser)) { showToast('You cannot ban this user'); document.getElementById('ban-modal').classList.add('hidden'); return; }
+      const isPermanent = canPermaban() && document.getElementById('ban-permanent-checkbox').checked;
+      const reason = document.getElementById('ban-reason-input').value.trim();
+      if (!reason || reason.length < 3) { document.getElementById('ban-reason-error').classList.remove('hidden'); return; }
+      document.getElementById('ban-reason-error').classList.add('hidden');
+      const banUntil = isPermanent ? PERMANENT_BAN_UNTIL : new Date(Date.now() + selectedBanDuration * 60000).toISOString();
+      const result = await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'message', username: 'System', content: `${selectedBanUser} was banned.`,
+        role: 'admin', room: currentRoom, timestamp: new Date().toISOString(),
+        approved: false, ban_reason: reason, ban_until: banUntil,
+        room_id: '', room_name: '', room_description: '', room_owner: '', room_members: '',
+        reported_message_id: '', reported_by: '', report_reason: '', mod_request_reason: '',
+        unban_reason: '', account_username: '', account_password_hash: '', account_password_salt: '',
+        account_role: '', reported_message: ''
+      });
+      if (result.isOk) {
+        showToast(isPermanent ? `${selectedBanUser} banned permanently` : `${selectedBanUser} banned for ${selectedBanDuration}m`);
+        document.getElementById('ban-modal').classList.add('hidden');
+      }
+    }
+
+    async function banUserFromReport(reportId, username) {
+      if (!canBanUser(username)) { showToast('You cannot ban this user'); document.getElementById('ban-modal').classList.add('hidden'); return; }
+      const isPermanent = canPermaban() && document.getElementById('ban-permanent-checkbox').checked;
+      const reason = document.getElementById('ban-reason-input').value.trim();
+      if (!reason || reason.length < 3) { document.getElementById('ban-reason-error').classList.remove('hidden'); return; }
+      document.getElementById('ban-reason-error').classList.add('hidden');
+      const report = allData.find(d => d.__backendId === reportId && d.type === 'report');
+      const banUntil = isPermanent ? PERMANENT_BAN_UNTIL : new Date(Date.now() + selectedBanDuration * 60000).toISOString();
+      await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'message', username: 'System', content: `${username} was banned. Reason: ${reason}`,
+        role: 'admin', room: 'main', timestamp: new Date().toISOString(),
+        approved: false, ban_reason: reason, ban_until: banUntil,
+        room_id: '', room_name: '', room_description: '', room_owner: '', room_members: '',
+        reported_message_id: '', reported_by: '', report_reason: '', mod_request_reason: '',
+        unban_reason: '', account_username: '', account_password_hash: '', account_password_salt: '',
+        account_role: '', reported_message: ''
+      });
+      if (report) await window.dataSdk.delete(report);
+      showToast(isPermanent ? `${username} banned permanently` : `${username} banned for ${selectedBanDuration}m`);
+      document.getElementById('ban-modal').classList.add('hidden');
+    }
+
+    async function approveMod(backendId, username) {
+      const record = allData.find(d => d.__backendId === backendId);
+      if (record) {
+        record.approved = true;
+        const result = await window.dataSdk.update(record);
+        if (result.isOk) {
+          showToast(`${username} APPROVED AS MOD`);
+          const account = allData.find(d => d.type === 'account' && d.account_username === username);
+          if (account) { account.account_role = 'mod'; await window.dataSdk.update(account); }
+        }
+      }
+    }
+
+    async function denyMod(backendId) {
+      const record = allData.find(d => d.__backendId === backendId);
+      if (record) { const r = await window.dataSdk.delete(record); if (r.isOk) showToast('Moderator request denied'); }
+    }
+
+    async function revokeMod(backendId) {
+      const record = allData.find(d => d.__backendId === backendId && d.type === 'mod_request' && d.approved);
+      if (record) {
+        const username = record.username;
+        const result = await window.dataSdk.delete(record);
+        if (result.isOk) {
+          showToast('Moderator status revoked');
+          const account = allData.find(d => d.type === 'account' && d.account_username === username);
+          if (account) { account.account_role = 'chatter'; await window.dataSdk.update(account); }
+        }
+      }
+    }
+
+    async function modUser(username) {
+      const account = allData.find(d => d.type === 'account' && d.account_username === username);
+      if (!account) { showToast('User not found'); return; }
+      account.account_role = 'mod';
+      const r = await window.dataSdk.update(account);
+      if (r.isOk) showToast(`${username} IS NOW MOD`);
+    }
+
+    async function unmodUser(username) {
+      const account = allData.find(d => d.type === 'account' && d.account_username === username);
+      if (!account) { showToast('User not found'); return; }
+      account.account_role = 'chatter';
+      const r = await window.dataSdk.update(account);
+      if (r.isOk) showToast(`${username} DEMOTED TO CHATTER`);
+    }
+
+    function updateAccountPanel() {
+      document.getElementById('account-page-current-username').textContent = currentUser;
+      const labels = { admin: 'Admin', mod: 'Moderator', chatter: 'Chatter' };
+      document.getElementById('account-page-current-role').textContent = labels[userRole] || 'Chatter';
+      const acc = getAccountByUsername(currentUser);
+      document.getElementById('account-page-current-tag').textContent = acc && acc.account_tag ? `@${acc.account_tag}` : '';
+      document.getElementById('account-page-avatar-preview').src = getAvatarUrl(currentUser);
+      document.getElementById('account-page-avatar-input').value = '';
+      document.getElementById('account-page-avatar-filename').textContent = '';
+      document.getElementById('account-page-bio-input').value = (acc && acc.account_bio) || '';
+      document.getElementById('account-page-social-youtube').value = (acc && acc.account_social_youtube) || '';
+      document.getElementById('account-page-social-twitch').value = (acc && acc.account_social_twitch) || '';
+      document.getElementById('account-page-social-x').value = (acc && acc.account_social_x) || '';
+      document.getElementById('account-page-social-other').value = (acc && acc.account_social_other) || '';
+      document.getElementById('account-page-friend-search').value = '';
+      document.getElementById('account-page-friend-search-results').innerHTML = '';
+      renderFriendsAndRequests(allData);
+    }
+
+    function renderFriendSearchResults(term) {
+      const resultsEl = document.getElementById('account-page-friend-search-results');
+      const q = term.trim().toLowerCase();
+      if (!q) { resultsEl.innerHTML = ''; return; }
+      const accounts = allData.filter(d => d.type === 'account' && d.account_username !== currentUser &&
+        (d.account_username.toLowerCase().includes(q) || (d.account_tag || '').toLowerCase().includes(q)));
+      resultsEl.innerHTML = accounts.length === 0
+        ? '<p class="text-slate-500 text-sm py-2 text-center">No users found</p>'
+        : accounts.slice(0, 8).map(acc => {
+            const record = getFriendRecord(currentUser, acc.account_username);
+            let actionHtml;
+            if (!record) actionHtml = `<button onclick="sendFriendRequest('${acc.account_username.replace(/'/g, "&#39;")}')" class="px-3 py-1 flat-button text-xs rounded font-semibold">Add</button>`;
+            else if (record.friend_status === 'accepted') actionHtml = `<span class="text-emerald-400 text-xs font-semibold">Friends</span>`;
+            else if (record.friend_requester === currentUser) actionHtml = `<span class="text-slate-500 text-xs">Pending</span>`;
+            else actionHtml = `<button onclick="acceptFriendRequest('${record.__backendId}')" class="px-3 py-1 flat-button text-xs rounded font-semibold">Accept</button>`;
+            return `
+              <div class="flat-panel rounded-lg p-2 flex items-center justify-between">
+                <span class="text-gray-200 text-sm font-mono cursor-pointer hover:underline" onclick="openProfileModal('${acc.account_username.replace(/'/g, "&#39;")}')">${acc.account_username}${acc.account_tag ? ` <span class="text-slate-500">@${acc.account_tag}</span>` : ''}</span>
+                ${actionHtml}
+              </div>`;
+          }).join('');
+    }
+
+    async function changeUsername() {
+      const newName = document.getElementById('account-page-new-username').value.trim();
+      if (!newName || newName.length < 2) { showToast('Username is too short'); return; }
+      if (getAccountByUsername(newName)) { showToast('That username is taken'); return; }
+      
+      const account = allData.find(d => d.type === 'account' && d.account_username === currentUser);
+      if (account) {
+        account.account_username = newName;
+        await window.dataSdk.update(account);
+      }
+
+      const oldName = currentUser;
+      currentUser = newName;
+      document.getElementById('account-page-new-username').value = '';
+      setCookie('tacopanda_username', newName, 30);
+      updateRoleDisplay();
+      updateAccountPanel();
+      showToast(`Username changed to ${newName}`);
+    }
+
+    async function changeTag() {
+      const newTag = document.getElementById('account-page-new-tag').value.trim().replace(/^@/, '');
+      if (!newTag || !/^[A-Za-z0-9_]{2,20}$/.test(newTag)) { showToast('Tag must be 2-20 letters, numbers, or underscores'); return; }
+      if (getAccountByTag(newTag)) { showToast('That tag is taken'); return; }
+      const account = allData.find(d => d.type === 'account' && d.account_username === currentUser);
+      if (account) { account.account_tag = newTag; await window.dataSdk.update(account); }
+      document.getElementById('account-page-new-tag').value = '';
+      updateAccountPanel();
+      showToast(`Tag changed to @${newTag}`);
+    }
+
+    // Shrinks the chosen image down to a small square and returns it as a
+    // data: URL (a plain string). Capping the size keeps that string small
+    // enough to comfortably live in a normal text field — a 128x128 JPEG
+    // is typically only a few KB, nowhere near a problem for a text column.
+    function resizeImageToDataUrl(file, maxSize) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Could not read that file'));
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('That file is not a readable image'));
+          img.onload = () => {
+            let { width, height } = img;
+            if (width > height) { if (width > maxSize) { height = Math.round(height * (maxSize / width)); width = maxSize; } }
+            else { if (height > maxSize) { width = Math.round(width * (maxSize / height)); height = maxSize; } }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Saves the profile picture as a small resized image stored directly in
+    // the account_avatar text field — the same plain update() path already
+    // used for username/bio/socials (which all save fine), instead of
+    // PocketBase's file storage, which needs a special File-type field
+    // added on the server before uploads work at all. This needs no server
+    // changes: any text field works the same way everywhere in this app.
+    async function uploadAvatar() {
+      const fileInput = document.getElementById('account-page-avatar-input');
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) { showToast('Choose an image first'); return; }
+      const account = allData.find(d => d.type === 'account' && d.account_username === currentUser);
+      if (!account) return;
+
+      let dataUrl;
+      try {
+        dataUrl = await resizeImageToDataUrl(file, 128);
+      } catch (e) {
+        console.error('Avatar resize failed:', e);
+        showToast('Could not read that image');
+        return;
+      }
+
+      account.account_avatar = dataUrl;
+      const result = await window.dataSdk.update(account);
+      if (result.isOk) {
+        showToast('Avatar updated');
+        fileInput.value = '';
+        document.getElementById('account-page-avatar-filename').textContent = '';
+        document.getElementById('account-page-avatar-preview').src = dataUrl;
+      } else {
+        const detail = (result.error && result.error.message) || null;
+        showToast(detail ? `Avatar upload failed: ${detail}` : 'Avatar upload failed — see console for details');
+      }
+    }
+
+    async function updateBio() {
+      const bio = document.getElementById('account-page-bio-input').value.trim().slice(0, 280);
+      const account = allData.find(d => d.type === 'account' && d.account_username === currentUser);
+      if (account) { account.account_bio = bio; await window.dataSdk.update(account); }
+      showToast('Bio updated');
+    }
+
+    async function updateSocials() {
+      const account = allData.find(d => d.type === 'account' && d.account_username === currentUser);
+      if (account) {
+        account.account_social_youtube = document.getElementById('account-page-social-youtube').value.trim();
+        account.account_social_twitch = document.getElementById('account-page-social-twitch').value.trim();
+        account.account_social_x = document.getElementById('account-page-social-x').value.trim();
+        account.account_social_other = document.getElementById('account-page-social-other').value.trim();
+        await window.dataSdk.update(account);
+      }
+      showToast('Social links updated');
+    }
+
+    async function submitModRequest() {
+      const reason = document.getElementById('mod-reason-input').value.trim();
+      if (!reason || reason.length < 5) { showToast('INSUFFICIENT REASON (MIN 5 CHARS)'); return; }
+      const result = await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'mod_request', username: currentUser, mod_request_reason: reason,
+        content: '', role: 'chatter', room: '', timestamp: new Date().toISOString(),
+        approved: false, ban_until: '', ban_reason: '',
+        room_id: '', room_name: '', room_description: '', room_owner: '', room_members: '',
+        reported_message_id: '', reported_by: '', report_reason: '', unban_reason: '',
+        account_username: '', account_password_hash: '', account_password_salt: '', account_role: '', reported_message: ''
+      });
+      if (result.isOk) {
+        document.getElementById('mod-request-modal').classList.add('hidden');
+        showToast('Moderator request submitted');
+      }
+    }
+
+    async function submitUnbanRequest() {
+      const reason = document.getElementById('unban-reason-input').value.trim();
+      if (!reason || reason.length < 5) { showToast('INSUFFICIENT REASON (MIN 5 CHARS)'); return; }
+      const result = await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'unban_request', username: currentUser, unban_reason: reason,
+        content: '', role: '', room: '', timestamp: new Date().toISOString(),
+        approved: false, ban_until: '', ban_reason: '',
+        room_id: '', room_name: '', room_description: '', room_owner: '', room_members: '',
+        reported_message_id: '', reported_by: '', report_reason: '', mod_request_reason: '',
+        account_username: '', account_password_hash: '', account_password_salt: '', account_role: '', reported_message: ''
+      });
+      if (result.isOk) { showToast('Appeal submitted'); document.getElementById('unban-reason-input').value = ''; }
+    }
+
+    async function approveUnban(backendId, username) {
+      const banRecord = allData.find(d => d.type === 'message' && d.ban_reason && d.ban_until);
+      if (banRecord) await window.dataSdk.delete(banRecord);
+      const req = allData.find(d => d.__backendId === backendId);
+      if (req) await window.dataSdk.delete(req);
+      showToast(`${username} unbanned`);
+    }
+
+    async function denyUnban(backendId) {
+      const req = allData.find(d => d.__backendId === backendId);
+      if (req) { const r = await window.dataSdk.delete(req); if (r.isOk) showToast('Appeal denied'); }
+    }
+
+    // ---- Event Listeners ----
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const username = document.getElementById('login-username-input').value.trim();
+      const tagInput = document.getElementById('login-tag-input').value.trim().replace(/^@/, '');
+      const password = document.getElementById('login-password-input').value.trim();
+      const confirmPassword = document.getElementById('login-password-confirm').value.trim();
+      const loginError = document.getElementById('login-error');
+      const loginTagError = document.getElementById('login-tag-error');
+      loginError.classList.add('hidden');
+      loginTagError.classList.add('hidden');
+      if (!username || username.length < 2) { loginError.textContent = 'Username is too short'; loginError.classList.remove('hidden'); return; }
+      if (getAccountByUsername(username)) { loginError.textContent = 'That username is taken'; loginError.classList.remove('hidden'); return; }
+      if (!tagInput || !/^[A-Za-z0-9_]{2,20}$/.test(tagInput)) { loginTagError.textContent = 'Tag must be 2-20 letters, numbers, or underscores'; loginTagError.classList.remove('hidden'); return; }
+      if (getAccountByTag(tagInput)) { loginTagError.textContent = 'That tag is taken'; loginTagError.classList.remove('hidden'); return; }
+      if (!password || password.length < 4) { loginError.textContent = 'Password is too short'; loginError.classList.remove('hidden'); return; }
+      if (password !== confirmPassword) { loginError.textContent = 'Passwords do not match'; loginError.classList.remove('hidden'); return; }
+      const result = await createNewAccount(username, password, tagInput);
+      if (result.isOk) {
+        currentUser = username;
+        userRole = 'chatter';
+        setCookie('tacopanda_username', username, 30);
+        setCookie('tacopanda_password', password, 30);
+        if (window.onTacoLoginStateChanged) window.onTacoLoginStateChanged(currentUser);
+        chatOpenedThisSession = true;
+        enterChat();
+      } else {
+        loginError.textContent = 'Could not create account';
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('switch-to-login-btn').addEventListener('click', e => { e.preventDefault(); switchToLoginForm(); });
+    document.getElementById('switch-to-create-btn').addEventListener('click', e => { e.preventDefault(); switchToCreateForm(); });
+
+    document.getElementById('existing-login-btn').addEventListener('click', async () => {
+      const username = document.getElementById('existing-username-input').value.trim();
+      const password = document.getElementById('existing-password-input').value.trim();
+      const loginErrorExisting = document.getElementById('login-error-existing');
+      loginErrorExisting.classList.add('hidden');
+      if (!username) { loginErrorExisting.textContent = 'Enter a username'; loginErrorExisting.classList.remove('hidden'); return; }
+      if (!password) { loginErrorExisting.textContent = 'Enter a password'; loginErrorExisting.classList.remove('hidden'); return; }
+      const result = await verifyLogin(username, password);
+      if (result.success) {
+        currentUser = username;
+        setCookie('tacopanda_username', username, 30);
+        setCookie('tacopanda_password', password, 30);
+        if (window.onTacoLoginStateChanged) window.onTacoLoginStateChanged(currentUser);
+        chatOpenedThisSession = true;
+        enterChat();
+      } else {
+        loginErrorExisting.textContent = result.error;
+        loginErrorExisting.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('message-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      if (checkBanStatus()) return;
+      const input = document.getElementById('message-input');
+      const content = input.value.trim();
+      if (!content) { showToast('Enter a message'); return; }
+      if (isLoading) return;
+      isLoading = true;
+      input.disabled = true;
+      document.getElementById('send-btn').disabled = true;
+      const result = await window.dataSdk.create({
+        ...blankRecord(),
+        type: 'message', username: currentUser, content: content, role: userRole,
+        room: currentRoom, timestamp: new Date().toISOString(), approved: false,
+        reply_to_id: replyContext ? replyContext.id : '',
+        reply_to_username: replyContext ? replyContext.username : '',
+        reply_to_content: replyContext ? replyContext.content : ''
+      });
+      if (result.isOk) {
+        input.value = '';
+        await notifyMentions(content, currentRoom, result.__backendId || '');
+        cancelReply();
+      } else {
+        showToast('Message failed to send');
+      }
+      isLoading = false;
+      input.disabled = false;
+      document.getElementById('send-btn').disabled = false;
+      input.focus();
+    });
+
+    // Finds every @tag in a just-sent message and creates a 'mention'
+    // record for each matching account (skipping self-mentions), so the
+    // tagged person sees it under their Notifications bell.
+    async function notifyMentions(content, room, messageId) {
+      const tags = [...content.matchAll(/(?:^|\s)@(\w{2,20})/g)].map(m => m[1]);
+      const uniqueTags = [...new Set(tags.map(t => t.toLowerCase()))];
+      for (const tag of uniqueTags) {
+        const acc = getAccountByTag(tag);
+        if (!acc || acc.account_username === currentUser) continue;
+        await window.dataSdk.create({
+          ...blankRecord(),
+          type: 'mention',
+          mention_to: acc.account_username,
+          mention_from: currentUser,
+          mention_content: content.slice(0, 140),
+          mention_message_id: messageId,
+          room: room,
+          timestamp: new Date().toISOString(),
+          read: false
+        });
+      }
+    }
+
+    document.getElementById('rooms-btn').addEventListener('click', () => {
+      hideAllPages();
+      document.getElementById('rooms-page').classList.remove('hidden');
+      renderPrivateRooms(allData);
+      updateRoomCounts();
+    });
+
+    document.getElementById('rooms-back-btn').addEventListener('click', () => { hideAllPages(); document.getElementById('chat-screen').classList.remove('hidden'); });
+    document.getElementById('main-room-btn-page').addEventListener('click', () => enterRoom('main'));
+    document.getElementById('homework-room-btn-page').addEventListener('click', () => enterRoom('homework'));
+
+    document.getElementById('create-room-btn').addEventListener('click', () => {
+      document.getElementById('create-room-modal').classList.remove('hidden');
+      document.getElementById('room-name-input').value = '';
+      document.getElementById('room-description-input').value = '';
+    });
+    document.getElementById('create-room-cancel-btn').addEventListener('click', () => document.getElementById('create-room-modal').classList.add('hidden'));
+    document.getElementById('create-room-confirm-btn').addEventListener('click', createRoom);
+
+    document.getElementById('invite-cancel-btn').addEventListener('click', () => { document.getElementById('invite-room-modal').classList.add('hidden'); selectedInviteUsers.clear(); });
+    document.getElementById('invite-confirm-btn').addEventListener('click', inviteUsersToRoom);
+    document.getElementById('invite-search-input').addEventListener('input', e => renderInviteUsersList(e.target.value));
+
+    document.getElementById('dashboard-btn').addEventListener('click', () => { hideAllPages(); document.getElementById('dashboard-page').classList.remove('hidden'); renderDashboard(allData); });
+    document.getElementById('dashboard-back-btn').addEventListener('click', () => { hideAllPages(); document.getElementById('chat-screen').classList.remove('hidden'); });
+
+    document.getElementById('admin-btn').addEventListener('click', () => {
+      document.getElementById('admin-modal-panel').classList.remove('hidden');
+      renderAdminPanel(allData);
+    });
+    document.getElementById('admin-modal-close-btn').addEventListener('click', () => document.getElementById('admin-modal-panel').classList.add('hidden'));
+
+    document.getElementById('notifications-btn').addEventListener('click', () => {
+      document.getElementById('notifications-modal').classList.remove('hidden');
+      renderFriendsAndRequests(allData);
+    });
+    document.getElementById('notifications-close-btn').addEventListener('click', () => document.getElementById('notifications-modal').classList.add('hidden'));
+    document.getElementById('profile-view-close-btn').addEventListener('click', () => {
+      document.getElementById('profile-view-modal').classList.add('hidden');
+      profileModalTargetUsername = null;
+    });
+
+    document.getElementById('account-top-btn').addEventListener('click', () => { hideAllPages(); document.getElementById('account-page').classList.remove('hidden'); updateAccountPanel(); });
+    document.getElementById('account-back-btn').addEventListener('click', () => { hideAllPages(); document.getElementById('chat-screen').classList.remove('hidden'); });
+    document.getElementById('account-page-change-name-btn').addEventListener('click', changeUsername);
+    document.getElementById('account-page-change-tag-btn').addEventListener('click', changeTag);
+    document.getElementById('account-page-avatar-btn').addEventListener('click', uploadAvatar);
+    document.getElementById('account-page-avatar-choose-btn').addEventListener('click', () => document.getElementById('account-page-avatar-input').click());
+    document.getElementById('account-page-avatar-input').addEventListener('change', e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      document.getElementById('account-page-avatar-filename').textContent = file.name;
+      // Local instant preview only — nothing is uploaded until "Upload avatar" is clicked.
+      const reader = new FileReader();
+      reader.onload = () => { document.getElementById('account-page-avatar-preview').src = reader.result; };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('account-page-bio-btn').addEventListener('click', updateBio);
+    document.getElementById('account-page-socials-btn').addEventListener('click', updateSocials);
+    document.getElementById('account-page-friend-search').addEventListener('input', e => renderFriendSearchResults(e.target.value));
+    function doLogout() {
+      currentUser = null; userRole = 'chatter';
+      chatOpenedThisSession = false;
+      deleteCookie('tacopanda_username'); deleteCookie('tacopanda_password');
+      hideAllPages();
+      if (window.onTacoLoginStateChanged) window.onTacoLoginStateChanged(null);
+      if (window.tacoChatGoToHomePage) window.tacoChatGoToHomePage();
+    }
+    window.tacoChatLogout = doLogout;
+
+    document.getElementById('account-page-logout-btn').addEventListener('click', doLogout);
+
+    document.getElementById('reply-banner-cancel-btn').addEventListener('click', cancelReply);
+
+    document.getElementById('report-cancel-btn').addEventListener('click', () => document.getElementById('report-modal').classList.add('hidden'));
+    document.getElementById('report-submit-btn').addEventListener('click', submitReport);
+
+    document.getElementById('ban-duration-slider').addEventListener('input', e => {
+      selectedBanDuration = parseInt(e.target.value);
+      document.getElementById('ban-duration-display').textContent = `${selectedBanDuration} MINUTES`;
+    });
+    document.getElementById('ban-confirm-btn').addEventListener('click', () => {
+      if (selectedReportId) { banUserFromReport(selectedReportId, selectedBanUser); selectedReportId = null; }
+      else banUser();
+    });
+    document.getElementById('ban-cancel-btn').addEventListener('click', () => document.getElementById('ban-modal').classList.add('hidden'));
+
+    document.getElementById('unban-submit-btn').addEventListener('click', submitUnbanRequest);
+    document.getElementById('mod-request-cancel-btn').addEventListener('click', () => document.getElementById('mod-request-modal').classList.add('hidden'));
+    document.getElementById('mod-request-submit-btn').addEventListener('click', submitModRequest);
+
+    // Backdrop-click-to-close for every dismissable modal. unban-modal is
+    // deliberately excluded — a ban notice/appeal shouldn't be dismissable
+    // by clicking away from it.
+    ['report-modal','ban-modal','create-room-modal','invite-room-modal','admin-modal-panel','profile-view-modal','notifications-modal','mod-request-modal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', e => {
+        if (e.target === document.getElementById(id)) document.getElementById(id).classList.add('hidden');
+      });
+    });
+
+    setInterval(updateBanTimeRemaining, 1000);
+
+    function tryRestoreSession() {
+      const savedUsername = getCookie('tacopanda_username');
+      const savedPassword = getCookie('tacopanda_password');
+      if (savedUsername && savedPassword) {
+        verifyLogin(savedUsername, savedPassword).then(result => {
+          if (result.success) {
+            currentUser = savedUsername;
+            if (window.onTacoLoginStateChanged) window.onTacoLoginStateChanged(currentUser);
+          } else {
+            deleteCookie('tacopanda_username');
+            deleteCookie('tacopanda_password');
+          }
+        });
+      }
+    }
+
+    let sessionRestored = false;
+    dataChangeCallbacks.push(data => {
+      allData = data;
+      if (!sessionRestored) {
+        sessionRestored = true;
+        document.getElementById('loading-overlay').classList.add('hidden');
+        tryRestoreSession();
+      } else {
+        if (!document.getElementById('chat-screen').classList.contains('hidden')) {
+          renderMessages(data);
+        }
+        if (currentUser) {
+          checkUserRole(data);
+          renderDashboard(data);
+          renderAdminPanel(data);
+          renderPrivateRooms(data);
+          renderFriendsAndRequests(data);
+          refreshProfileModalIfOpen();
+          updateRoomCounts();
+          checkBanStatus();
+        }
+      }
+    });
+
+    // ============================================================
+    // THE HUGE BUGFIX — expose every function referenced by an
+    // onclick="..." attribute inside the dynamically-rendered HTML
+    // (messages, rooms list, dashboard, admin panel, invite list,
+    // profile modal, notifications). Inline onclick attributes always
+    // run in the GLOBAL scope, but every one of these was declared as a
+    // private function inside this file's IIFE — so none of them were
+    // ever reachable, and clicking those buttons silently threw
+    // "X is not defined" in the console. This is why so many buttons
+    // looked broken. If you add another onclick="someFunction(...)" to
+    // a template string anywhere in this file, someFunction needs to be
+    // added to this list too, or it'll have the same silent-failure bug.
+    // ============================================================
+    Object.assign(window, {
+      enterRoom, openInviteModal, deleteRoom, toggleInviteUser,
+      openBanModal, openReportModal, dismissReport, openBanModalFromReport,
+      approveMod, denyMod, revokeMod, modUser, unmodUser,
+      approveUnban, denyUnban, openProfileModal, sendFriendRequest,
+      acceptFriendRequest, declineFriendRequest, removeFriend, startReply
+    });
+
+    window.dataSdk.init();
+  })();
+  </script>
+
+ </body>
+</html>
