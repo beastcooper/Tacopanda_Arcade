@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secret Messenger</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Segoe UI",sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    overflow:hidden;
+    background:linear-gradient(
+        -45deg,
+        #0f172a,
+        #1e293b,
+        #312e81,
+        #581c87
+    );
+    background-size:400% 400%;
+    animation:bgMove 15s ease infinite;
+}
+
+@keyframes bgMove{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
+
+.card{
+    width:100%;
+    max-width:900px;
+
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,0.1);
+
+    border-radius:28px;
+    padding:30px;
+
+    box-shadow:
+        0 25px 50px rgba(0,0,0,.4),
+        0 0 50px rgba(99,102,241,.15);
+
+    color:white;
+}
+
+h1{
+    text-align:center;
+    font-size:2.5rem;
+    margin-bottom:8px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#cbd5e1;
+    margin-bottom:25px;
+}
+
+.label{
+    margin-bottom:8px;
+    margin-top:18px;
+    color:#cbd5e1;
+    font-weight:600;
+}
+
+textarea{
+    width:100%;
+    min-height:150px;
+    resize:vertical;
+
+    border:none;
+    outline:none;
+
+    background:rgba(255,255,255,.07);
+
+    color:white;
+
+    border-radius:16px;
+    padding:15px;
+
+    font-size:15px;
+}
+
+textarea::placeholder,
+input::placeholder{
+    color:#94a3b8;
+}
+
+.password-row{
+    display:flex;
+    gap:10px;
+}
+
+.password-row input{
+    flex:1;
+}
+
+input{
+    width:100%;
+    border:none;
+    outline:none;
+
+    padding:14px;
+
+    border-radius:14px;
+
+    color:white;
+
+    background:rgba(255,255,255,.07);
+}
+
+.buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:20px;
+}
+
+button{
+    flex:1;
+    min-width:170px;
+
+    border:none;
+    cursor:pointer;
+
+    padding:14px;
+
+    border-radius:16px;
+
+    font-weight:700;
+    color:white;
+
+    transition:.25s ease;
+}
+
+button:hover{
+    transform:translateY(-3px);
+}
+
+.encrypt{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+}
+
+.decrypt{
+    background:linear-gradient(135deg,#3b82f6,#2563eb);
+}
+
+.copy{
+    background:linear-gradient(135deg,#f59e0b,#d97706);
+}
+
+.toggle{
+    background:linear-gradient(135deg,#7c3aed,#5b21b6);
+}
+
+.status{
+    margin-top:15px;
+    text-align:center;
+    color:#93c5fd;
+    font-size:.95rem;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+    <h1>🔐 Secret Messenger</h1>
+    <div class="subtitle">
+        Encrypt and decrypt messages securely with a shared password
+    </div>
+
+    <div class="label">Password</div>
+
+    <div class="password-row">
+        <input
+            type="password"
+            id="password"
+            placeholder="Enter shared password"
+        >
+
+        <button class="toggle" onclick="togglePassword()">
+            👁 Show
+        </button>
+    </div>
+
+    <div class="label">Input</div>
+
+    <textarea
+        id="input"
+        placeholder="Type a message or encrypted text..."
+    ></textarea>
+
+    <div class="buttons">
+        <button class="encrypt" onclick="encryptMessage()">
+            🔒 Encrypt
+        </button>
+
+        <button class="decrypt" onclick="decryptMessage()">
+            🔓 Decrypt
+        </button>
+
+        <button class="copy" onclick="copyOutput()">
+            📋 Copy Output
+        </button>
+    </div>
+
+    <div class="label">Output</div>
+
+    <textarea
+        id="output"
+        readonly
+        placeholder="Results appear here..."
+    ></textarea>
+
+    <div class="status" id="status">
+        Ready.
+    </div>
+
+</div>
+
+<script>
+
+function xorCipher(text,password){
+    let result="";
+
+    for(let i=0;i<text.length;i++){
+        result += String.fromCharCode(
+            text.charCodeAt(i) ^
+            password.charCodeAt(i % password.length)
+        );
+    }
+
+    return result;
+}
+
+function encryptMessage(){
+
+    const text =
+        document.getElementById("input").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    if(!password){
+        updateStatus("Enter a password.");
+        return;
+    }
+
+    const encrypted =
+        btoa(xorCipher(text,password));
+
+    document.getElementById("output").value =
+        encrypted;
+
+    updateStatus("✅ Message encrypted.");
+}
+
+function decryptMessage(){
+
+    const text =
+        document.getElementById("input").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    if(!password){
+        updateStatus("Enter a password.");
+        return;
+    }
+
+    try{
+
+        const decrypted =
+            xorCipher(atob(text),password);
+
+        document.getElementById("output").value =
+            decrypted;
+
+        updateStatus("✅ Message decrypted.");
+
+    }catch{
+
+        updateStatus("❌ Invalid encrypted text or password.");
+
+    }
+}
+
+function copyOutput(){
+
+    navigator.clipboard.writeText(
+        document.getElementById("output").value
+    );
+
+    updateStatus("📋 Copied to clipboard.");
+}
+
+function updateStatus(message){
+    document.getElementById("status")
+        .textContent = message;
+}
+
+function togglePassword(){
+
+    const box =
+        document.getElementById("password");
+
+    if(box.type === "password"){
+        box.type = "text";
+    }
+    else{
+        box.type = "password";
+    }
+}
+
+</script>
+
+</body>
+</html>
